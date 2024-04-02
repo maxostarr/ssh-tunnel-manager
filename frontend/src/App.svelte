@@ -1,17 +1,10 @@
 <script lang="ts">
-  import logo from "./assets/images/logo-universal.png"
-  import { Connect, Greet } from "../wailsjs/go/main/App.js"
-
-  let resultText: string = "Please enter your name below 👇"
-  let name: string
+  import { Connect } from "../wailsjs/go/main/App.js"
 
   let localPort: number = 8181
   let remotePort: number = 9443
   let remoteHost: string = "localhost"
-
-  function greet(): void {
-    Greet(name).then((result) => (resultText = result))
-  }
+  let resultText: string = ""
 
   function listen(): void {
     console.log(localPort, remotePort, remoteHost)
