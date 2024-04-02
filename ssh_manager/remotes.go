@@ -24,8 +24,27 @@ func NewSshManagerRemote(name string, host string, port int, username string, pa
 			Password: password,
 		},
 	}
-	remote.Auth = []ssh.AuthMethod{ssh.Password(password)}
+	// remote.Auth = []ssh.AuthMethod{ssh.Password(password)}
 	return remote
+}
+
+func NewSshManagerRemoteFromData(data SshManagerRemoteData) *SshManagerRemote {
+	remote := &SshManagerRemote{
+		SshManagerRemoteData: data,
+	}
+	remote.Auth = []ssh.AuthMethod{ssh.Password(data.Password)}
+	return remote
+}
+
+func (remote *SshManagerRemote) Initialize() {
+	tunnelsData, err := GetTunnelsByRemote(remote.ID)
+	if err != nil {
+		panic(err)
+	}
+	for _, tunnelData := range tunnelsData {
+		tunnel := NewSshManagerTunnelFromData(*tunnelData, remote)
+		remote.Tunnels = append(remote.Tunnels, tunnel)
+	}
 }
 
 func (remote *SshManagerRemote) Save() (string, error) {
@@ -58,3 +77,13 @@ func (remote *SshManagerRemote) AddTunnel(localPort int, remoteHost string, remo
 	return true, nil
 }
 
+func (remote *SshManagerRemote) RemoveTunnel(localPort int) (bool, error) {
+	for i, tunnel := range remote.Tunnels {
+		if tunnel.LocalPort == localPort {
+			tunnel.Disconnect()
+			remote.Tunnels = append(remote.Tunnels[:i], remote.Tunnels[i+1:]...)
+			return true, nil
+		}
+	}
+	return false, nil
+}

@@ -14,6 +14,7 @@ import (
 
 type SshManagerTunnel struct {
 	SshManagerTunnelData	
+	Remote 		*SshManagerRemote
 	stop      chan struct{}
 	wg        sync.WaitGroup
 }
@@ -28,9 +29,21 @@ func NewSshManagerTunnel(localPort int, remoteHost string, remotePort int, remot
 			RemoteID:   remote.ID,
 		},
 		stop: make(chan struct{}),
+		wg: sync.WaitGroup{},
+		Remote: remote,
 	}
 	
 	// remote.Tunnels = append(remote.Tunnels, tunnel)
+	return tunnel
+}
+
+func NewSshManagerTunnelFromData(data SshManagerTunnelData, remote *SshManagerRemote) *SshManagerTunnel {
+	tunnel := &SshManagerTunnel{
+		SshManagerTunnelData: data,
+		Remote: remote,
+		stop: make(chan struct{}),
+		wg: sync.WaitGroup{},
+	}
 	return tunnel
 }
 
@@ -66,20 +79,20 @@ func handleConn(localConn net.Conn, client *ssh.Client, remoteHost string, remot
 	<-stop
 }
 
-func (tunnel *SshManagerRemote) Connect(localPort int, remoteHost string, remotePort int) (bool, error) {
+func (tunnel *SshManagerTunnel) Connect() (bool, error) {
 	config := &ssh.ClientConfig{
-		User: tunnel.Username,
-		Auth: tunnel.Auth,
+		User: tunnel.Remote.Username,
+		Auth: tunnel.Remote.Auth,
 		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
 	}
 
-	client, err := ssh.Dial("tcp", tunnel.Host+":"+strconv.Itoa(tunnel.Port), config)
+	client, err := ssh.Dial("tcp", tunnel.RemoteHost+":"+strconv.Itoa(tunnel.RemotePort), config)
 	if err != nil {
 		return true, fmt.Errorf("Failed to dial: %v", err)
 	}
 	defer client.Close()
 
-	listener, err := net.Listen("tcp", "localhost:"+strconv.Itoa(int(localPort)))
+	listener, err := net.Listen("tcp", "localhost:"+strconv.Itoa(int(tunnel.LocalPort)))
 	if err != nil {
 		return true, fmt.Errorf("Failed to listen: %v", err)
 	}
@@ -99,7 +112,7 @@ func (tunnel *SshManagerRemote) Connect(localPort int, remoteHost string, remote
 			}
 		}
 
-		go handleConn(conn, client, remoteHost, remotePort, stop, &wg)
+		go handleConn(conn, client, tunnel.RemoteHost, tunnel.RemotePort, stop, &wg)
 	}
 }
 

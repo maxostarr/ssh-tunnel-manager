@@ -7,8 +7,7 @@ import (
 	"path/filepath"
 
 	"github.com/google/uuid"
-
-	"github.com/tursodatabase/go-libsql"
+	_ "github.com/mattn/go-sqlite3"
 )
 
 var connection *sql.DB
@@ -30,31 +29,17 @@ type SshManagerTunnelData struct {
 	RemoteID   string
 }
 
-func Connect() {
-    dbName := "local.db"
-    primaryUrl := "libsql://ssh-tunnel-manager-maxostarr.turso.io"
-    authToken := "eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE3MTIwMTUwNDYsImlkIjoiOWZlY2MwZmUtN2RjOS00YjJhLTliN2EtYzVkZjlkNDk3ZjIwIn0.AoK1G2XL87t8EwuUBZ_Nws4tK6Tm4nw1S8hSUTYp4NkJuSrIJjvwGUM_2oTfj5fvSQsICcyCcf6SeMymXJWNDA"
+func ConnectDB() {
+	dbName := "local.db"
+	dbPath := filepath.Join(".", dbName)
 
-    dir, err := os.MkdirTemp("", "libsql-*")
-    if err != nil {
-        fmt.Println("Error creating temporary directory:", err)
-        os.Exit(1)
-    }
-    defer os.RemoveAll(dir)
+	db, err := sql.Open("sqlite3", dbPath)
+	if err != nil {
+		fmt.Println("Error opening database:", err)
+		os.Exit(1)
+	}
 
-    dbPath := filepath.Join(dir, dbName)
-
-    connector, err := libsql.NewEmbeddedReplicaConnector(dbPath, primaryUrl,
-        libsql.WithAuthToken(authToken),
-    )
-    if err != nil {
-        fmt.Println("Error creating connector:", err)
-        os.Exit(1)
-    }
-    defer connector.Close()
-
-    connection = sql.OpenDB(connector)
-    // defer connection.Close()
+	connection = db
 }
 
 func GetConnection() *sql.DB {
@@ -210,4 +195,3 @@ func DeleteTunnel(id string) error {
 	}
 	return nil
 }
-
