@@ -1,4 +1,5 @@
 <script lang="ts">
+  import "./style.css"
   import { Connect } from "../wailsjs/go/main/App.js"
   import Remotes from "./components/Remotes.svelte"
 
