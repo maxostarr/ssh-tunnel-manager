@@ -1,7 +1,7 @@
 <script lang="ts">
   import "./style.css"
   import { Connect } from "../wailsjs/go/main/App.js"
-  import Remotes from "./components/Remotes.svelte"
+  import Remotes from "./components/Remotes/Remotes.svelte"
 
   let localPort: number = 8181
   let remotePort: number = 9443

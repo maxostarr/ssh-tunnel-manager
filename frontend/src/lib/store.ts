@@ -1,14 +1,31 @@
 import { writable } from "svelte/store"
-import { GetRemotes } from "../../wailsjs/go/main/App.js"
+import { AddRemote, GetRemotes } from "../../wailsjs/go/main/App.js"
 
-export const remotesStore = writable([])
+export interface Remote {
+  Name: string
+  ID: string
+  Host: string
+  Port: number
+  Username: string
+  Password: string
+}
+
+export type NewRemote = Omit<Remote, "ID">
+
+export const remotesStore = writable([] as Remote[])
 
 export const loadRemotes = async () => {
   const remotesData = await GetRemotes()
-  console.log('🚀 ~ file: store.ts:8 ~ loadRemotes ~ remotesData:', remotesData)
-  // remotes.set(remotes)
+  remotesStore.set(remotesData)
 }
 
-export const addRemote = (remote) => {
-  remotesStore.update((remotes) => [...remotes, remote])
+export const addRemote = async (remote: NewRemote) => {
+  await AddRemote(
+    remote.Name,
+    remote.Host,
+    remote.Port,
+    remote.Username,
+    remote.Password,
+  )
+  return loadRemotes()
 }
