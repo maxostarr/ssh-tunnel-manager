@@ -47,6 +47,7 @@ func (manager *SshManager) NewSshManagerRemoteFromData(data SshManagerRemoteData
 
 
 func (manager *SshManager) promptKeyboardChallenge(user, instruction string, questions []string, echos []bool) (answers []string, err error) {
+	fmt.Println(instruction)
 	answers = make([]string, len(questions))
 	for i := range questions {
 		answers[i] = manager.PromptUser(questions[i])
@@ -56,6 +57,7 @@ func (manager *SshManager) promptKeyboardChallenge(user, instruction string, que
 }
 
 func (manager *SshManager) promptPasswordChallenge() (string, error) {
+	fmt.Println("Password: ")
 	return manager.PromptUser("Password: "), nil
 }
 

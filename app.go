@@ -92,6 +92,7 @@ func (a *App) Disconnect(remoteName string) {
 }
 
 func (a *App) PromptUser(prompt string) string {
+	fmt.Println("Prompting user with: " + prompt)
 	runtime.EventsEmit(a.ctx, "prompt", prompt)
 	// Wait for the response
 	responseChannel := make(chan string)

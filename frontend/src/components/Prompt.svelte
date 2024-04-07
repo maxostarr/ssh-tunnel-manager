@@ -1,22 +1,23 @@
 <script lang="ts">
-  import { EventsEmit, EventsOn } from "../../wailsjs/runtime"
+  import { onMount } from "svelte"
+  import { EventsEmit, EventsOn, EventsOff } from "../../wailsjs/runtime"
   let resolve
   let reject
 
   let promptText = ""
 
-  export const prompt = (prompt: string) => {
-    promptText = prompt
+  export const prompt = (promptString: string) => {
+    promptText = promptString
     const promise = new Promise((res, rej) => {
       resolve = res
       reject = rej
     })
-    ;(document.getElementById("newRemote") as HTMLDialogElement).showModal()
+    ;(document.getElementById("prompt") as HTMLDialogElement).showModal()
     return promise
   }
 
   const close = () => {
-    ;(document.getElementById("newRemote") as HTMLDialogElement).close()
+    ;(document.getElementById("prompt") as HTMLDialogElement).close()
   }
 
   const submit = async (event: Event) => {
@@ -34,23 +35,32 @@
     close()
   }
 
-  EventsOn("prompt", async (prompt) => {
-    console.log("🚀 ~ EventsOn ~ prompt:", prompt)
-    const res = await prompt(prompt)
-    console.log("🚀 ~ EventsOn ~ res:", res)
+  onMount(() => {
+    EventsOn("prompt", async (promptString) => {
+      const res = await prompt(promptString)
 
-    EventsEmit("prompt-response", res)
+      EventsEmit("prompt-response", res)
+    })
+
+    return () => EventsOff("prompt")
   })
+
+  console.log("🚀 ~ prompt ~ promptText:")
 </script>
 
-<dialog class="modal card" id="newRemote">
+<dialog class="modal card" id="prompt">
   <div class="modal-box card-body">
     <h2 class="card-title">Prompt</h2>
     <div class="divider"></div>
     <form class="form-control flex gap-2" on:submit|preventDefault={submit}>
-      <p>{{ prompt }}</p>
-      <label class="input input-bordered flex items-center">
-        <input type="text" name="response" placeholder="Response" required />
+      <p>{promptText}</p>
+      <label class="input input-bordered flex items-center grow">
+        <input
+          type="password"
+          name="response"
+          placeholder="Response"
+          required
+        />
       </label>
       <div class="join">
         <button class="btn join-item flex-1 btn-primary" type="submit"
