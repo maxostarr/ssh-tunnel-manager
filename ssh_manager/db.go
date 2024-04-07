@@ -18,7 +18,6 @@ type SshManagerRemoteData struct {
 	Host     string
 	Port     int
 	Username string
-	Password string
 }
 
 type SshManagerTunnelData struct {
@@ -56,8 +55,7 @@ func CreateTables() {
 		name TEXT NOT NULL,
 		host TEXT NOT NULL,
 		port INTEGER NOT NULL,
-		username TEXT NOT NULL,
-		password TEXT NOT NULL
+		username TEXT NOT NULL
 	);`)
 	if err != nil {
 		fmt.Println("Error creating remotes table:", err)
@@ -85,7 +83,7 @@ func GenerateUUID() string {
 func InsertRemote(remoteData *SshManagerRemoteData) (string, error) {
 	id := GenerateUUID()
 	_, err := connection.Exec(`INSERT INTO remotes (id, name, host, port, username, password)
-		VALUES (?, ?, ?, ?, ?, ?);`, id, remoteData.Name, remoteData.Host, remoteData.Port, remoteData.Username, remoteData.Password)
+		VALUES (?, ?, ?, ?, ?);`, id, remoteData.Name, remoteData.Host, remoteData.Port, remoteData.Username)
 	if err != nil {
 		return "", err
 	}
@@ -104,7 +102,7 @@ func InsertTunnel(tunnelData *SshManagerTunnelData) (string, error) {
 
 func GetRemote(id string) (SshManagerRemoteData, error) {
 	var remoteData SshManagerRemoteData
-	err := connection.QueryRow(`SELECT name, host, port, username, password FROM remotes WHERE id = ?;`, id).Scan(&remoteData.Name, &remoteData.Host, &remoteData.Port, &remoteData.Username, &remoteData.Password)
+	err := connection.QueryRow(`SELECT name, host, port, username FROM remotes WHERE id = ?;`, id).Scan(&remoteData.Name, &remoteData.Host, &remoteData.Port, &remoteData.Username)
 	if err != nil {
 		return SshManagerRemoteData{}, err
 	}

@@ -21,7 +21,6 @@ func NewSshManagerRemote(name string, host string, port int, username string, pa
 			Host:     host,
 			Port:     port,
 			Username: username,
-			Password: password,
 		},
 	}
 	// remote.Auth = []ssh.AuthMethod{ssh.Password(password)}
@@ -32,7 +31,7 @@ func NewSshManagerRemoteFromData(data SshManagerRemoteData) *SshManagerRemote {
 	remote := &SshManagerRemote{
 		SshManagerRemoteData: data,
 	}
-	remote.Auth = []ssh.AuthMethod{ssh.Password(data.Password)}
+	// remote.Auth = []ssh.AuthMethod{ssh.Password()}
 	return remote
 }
 

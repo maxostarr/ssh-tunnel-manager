@@ -16,8 +16,6 @@ export function GetRemotes():Promise<Array<ssh_manager.SshManagerRemote>>;
 
 export function GetTunnels(arg1:string):Promise<Array<ssh_manager.SshManagerTunnel>>;
 
-export function Greet(arg1:string):Promise<string>;
-
 export function RemoveRemote(arg1:string):Promise<boolean>;
 
 export function RemoveTunnel(arg1:string,arg2:number):Promise<boolean>;
