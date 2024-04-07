@@ -20,7 +20,7 @@
   })
 </script>
 
-<div class="card-bordered w-96 bg-base-100 shadow-xl">
+<div class="card-bordered w-96 bg-base-100 shadow-xl h-full">
   <NewRemote bind:show={showNewRemote} />
   <div class="card-body">
     <h2 class="card-title">
@@ -53,9 +53,6 @@
         <li>
           <h2>{remote.Name}</h2>
           <p>{remote.Host}</p>
-          <!-- <p>{remote.Port}</p>
-          <p>{remote.Username}</p>
-          <p>{remote.Password}</p> -->
         </li>
       {/each}
     </ol>

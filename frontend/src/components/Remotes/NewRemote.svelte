@@ -1,5 +1,4 @@
 <script lang="ts">
-  // import { AddRemote } from "../../../wailsjs/go/main/App"
   import { addRemote, type NewRemote } from "../../lib/store"
 
   import { onMount } from "svelte"
@@ -30,9 +29,9 @@
     ;(document.getElementById("newRemote") as HTMLDialogElement).close()
   }
 
-  onMount(() => {
-    show()
-  })
+  // onMount(() => {
+  //   show()
+  // })
 </script>
 
 <dialog class="modal card" id="newRemote">
