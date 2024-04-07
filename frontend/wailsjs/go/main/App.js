@@ -30,6 +30,10 @@ export function GetTunnels(arg1) {
   return window['go']['main']['App']['GetTunnels'](arg1);
 }
 
+export function PromptUser(arg1) {
+  return window['go']['main']['App']['PromptUser'](arg1);
+}
+
 export function RemoveRemote(arg1) {
   return window['go']['main']['App']['RemoveRemote'](arg1);
 }

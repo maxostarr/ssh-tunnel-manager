@@ -2,11 +2,9 @@ package ssh_manager
 
 type SshManager struct {
 	Remotes []*SshManagerRemote
+	PromptUser func(prompt string) string
 }
 
-func NewSshManager() *SshManager {
-	return &SshManager{}
-}
 
 func (manager *SshManager) Initialize() {
 	// Get all remotesData from the database
@@ -16,13 +14,13 @@ func (manager *SshManager) Initialize() {
 	}
 
 	for _, remoteData := range remotesData {
-		remote := NewSshManagerRemoteFromData(*remoteData)
+		remote := manager.NewSshManagerRemoteFromData(*remoteData)
 		manager.Remotes = append(manager.Remotes, remote)
 	}
 }
 
 func (manager *SshManager) AddRemote(name string, host string, port int, username string, password string) (bool, error) {
-	remote := NewSshManagerRemote(name, host, port, username, password)
+	remote := manager.NewSshManagerRemote(name, host, port, username, password)
 	manager.Remotes = append(manager.Remotes, remote)
 	return true, nil
 }

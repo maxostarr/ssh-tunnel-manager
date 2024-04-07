@@ -3,48 +3,54 @@ package main
 import (
 	"context"
 	"ssh-tunnel-manager/ssh_manager"
+
+	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
-var sshManager *ssh_manager.SshManager = ssh_manager.NewSshManager()
-
+// var sshManager *ssh_manager.SshManager = ssh_manager.NewSshManager()
 
 // App struct
 type App struct {
-	ctx context.Context
+	ctx      context.Context
+	manager  *ssh_manager.SshManager
 }
 
 // NewApp creates a new App application struct
 func NewApp() *App {
 	ssh_manager.ConnectDB()
 	ssh_manager.CreateTables()
-	sshManager.Initialize()
-	return &App{}
+	manager := &ssh_manager.SshManager{}
+	manager.Initialize()
+	return &App{
+		manager: manager,
+	}
 }
 
 // startup is called when the app starts. The context is saved
 // so we can call the runtime methods
 func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
+	a.manager.PromptUser = a.PromptUser
 }
 
 func (a *App) GetRemotes() []*ssh_manager.SshManagerRemote {
-	return sshManager.GetRemotes()
+	return a.manager.GetRemotes()
 }
 
 func (a *App) AddRemote(name string, host string, port int, username string, password string) (bool, error) {
-	return sshManager.AddRemote(name, host, port, username, password)
+	return a.manager.AddRemote(name, host, port, username, password)
 }
 
 func (a *App) RemoveRemote(name string) (bool, error) {
-	return sshManager.RemoveRemote(name)
+	return a.manager.RemoveRemote(name)
 }
 
 func (a *App) GetRemote(name string) (*ssh_manager.SshManagerRemote, error) {
-	return sshManager.GetRemote(name)
+	return a.manager.GetRemote(name)
 }
 
 func (a *App) GetTunnels(remoteName string) []*ssh_manager.SshManagerTunnel {
-	remote, err := sshManager.GetRemote(remoteName)
+	remote, err := a.manager.GetRemote(remoteName)
 	if err != nil {
 		return nil
 	}
@@ -52,7 +58,7 @@ func (a *App) GetTunnels(remoteName string) []*ssh_manager.SshManagerTunnel {
 }
 
 func (a *App) AddTunnel(remoteName string, localPort int, remoteHost string, remotePort int) (bool, error) {
-	remote, err := sshManager.GetRemote(remoteName)
+	remote, err := a.manager.GetRemote(remoteName)
 	if err != nil {
 		return false, err
 	}
@@ -60,7 +66,7 @@ func (a *App) AddTunnel(remoteName string, localPort int, remoteHost string, rem
 }
 
 func (a *App) RemoveTunnel(remoteName string, localPort int) (bool, error) {
-	remote, err := sshManager.GetRemote(remoteName)
+	remote, err := a.manager.GetRemote(remoteName)
 	if err != nil {
 		return false, err
 	}
@@ -68,7 +74,7 @@ func (a *App) RemoveTunnel(remoteName string, localPort int) (bool, error) {
 }
 
 func (a *App) Connect(remoteName string) (bool, error) {
-	remote, err := sshManager.GetRemote(remoteName)
+	remote, err := a.manager.GetRemote(remoteName)
 	if err != nil {
 		return false, err
 	}
@@ -76,11 +82,22 @@ func (a *App) Connect(remoteName string) (bool, error) {
 }
 
 func (a *App) Disconnect(remoteName string) {
-	remote, err := sshManager.GetRemote(remoteName)
+	remote, err := a.manager.GetRemote(remoteName)
 	if err != nil {
 		return
 	}
 	remote.Disconnect()
+}
+
+func (a *App) PromptUser(prompt string) string {
+	runtime.EventsEmit(a.ctx, "prompt", prompt)
+	// Wait for the response
+	responseChannel := make(chan string)
+	runtime.EventsOnce(a.ctx, "prompt-response", func(data ...interface{}) {
+		responseChannel <- data[0].(string)
+	})
+
+	return <-responseChannel
 }
 
 // func (a *App) Connect(localPort float64, remoteHost string, remotePort float64) error {

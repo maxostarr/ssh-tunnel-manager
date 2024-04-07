@@ -12,9 +12,10 @@ type SshManagerRemote struct {
 	Auth    []ssh.AuthMethod
 	Client  *ssh.Client
 	Tunnels []*SshManagerTunnel
+	Manager *SshManager
 }
 
-func NewSshManagerRemote(name string, host string, port int, username string, password string) *SshManagerRemote {
+func (manager *SshManager) NewSshManagerRemote(name string, host string, port int, username string, password string) *SshManagerRemote {
 	remote := &SshManagerRemote{
 		SshManagerRemoteData: SshManagerRemoteData{
 			Name:     name,
@@ -22,17 +23,29 @@ func NewSshManagerRemote(name string, host string, port int, username string, pa
 			Port:     port,
 			Username: username,
 		},
+		Manager: manager,
 	}
 	// remote.Auth = []ssh.AuthMethod{ssh.Password(password)}
 	return remote
 }
 
-func NewSshManagerRemoteFromData(data SshManagerRemoteData) *SshManagerRemote {
+func (manager *SshManager) NewSshManagerRemoteFromData(data SshManagerRemoteData) *SshManagerRemote {
 	remote := &SshManagerRemote{
 		SshManagerRemoteData: data,
+		Manager: manager,
 	}
-	// remote.Auth = []ssh.AuthMethod{ssh.Password()}
+
+	remote.Auth = []ssh.AuthMethod{ssh.KeyboardInteractive(manager.promptKeyboardChallenge)}
 	return remote
+}
+
+func (manager *SshManager) promptKeyboardChallenge(user, instruction string, questions []string, echos []bool) (answers []string, err error) {
+	answers = make([]string, len(questions))
+	for i := range questions {
+		answers[i] = manager.PromptUser(questions[i])
+	}
+	
+	return answers, nil
 }
 
 func (remote *SshManagerRemote) Initialize() {
