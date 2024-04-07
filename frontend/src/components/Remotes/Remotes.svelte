@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { AddRemote } from "../../../wailsjs/go/main/App"
+  import { AddRemote, Connect } from "../../../wailsjs/go/main/App"
   import { loadRemotes, remotesStore } from "../../lib/store"
   import type { Remote } from "../../lib/store"
 
@@ -18,6 +18,11 @@
     remotes = value
     debugRemotes = JSON.stringify(value, null, 2)
   })
+
+  const openRemote = (id: string) => async () => {
+    console.log("🚀 ~ openRemote ~ id:", id)
+    await Connect(id)
+  }
 </script>
 
 <div class="card-bordered w-96 bg-base-100 shadow-xl h-full">
@@ -48,29 +53,36 @@
       </button>
     </h2>
     <div class="divider"></div>
-    <ol>
-      {#each remotes as remote}
-        <li>
-          <h2>{remote.Name}</h2>
-          <p>{remote.Host}</p>
-        </li>
-      {/each}
-    </ol>
+    <div class="overflow-x-auto">
+      <table class="table">
+        <tbody>
+          {#each remotes as remote}
+            <tr on:click={openRemote(remote.ID)} tabindex="0" role="button">
+              <td>
+                <h2>{remote.Name}</h2>
+              </td>
+              <td>
+                <p>{remote.Host}</p>
+              </td>
+            </tr>
+          {/each}
+        </tbody>
+      </table>
+    </div>
   </div>
 </div>
 
 <style>
-  li,
   .card-title {
     display: flex;
     justify-content: space-between;
   }
-
-  li p {
-    flex: 0;
-  }
-
   svg {
     fill: currentColor;
+  }
+
+  .table tr:hover {
+    background-color: oklch(var(--p));
+    color: oklch(var(--pc));
   }
 </style>

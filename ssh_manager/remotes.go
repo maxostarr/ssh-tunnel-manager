@@ -1,6 +1,7 @@
 package ssh_manager
 
 import (
+	"fmt"
 	"strconv"
 
 	"golang.org/x/crypto/ssh"
@@ -12,32 +13,38 @@ type SshManagerRemote struct {
 	Auth    []ssh.AuthMethod
 	Client  *ssh.Client
 	Tunnels []*SshManagerTunnel
-	Manager *SshManager
 }
 
-func (manager *SshManager) NewSshManagerRemote(name string, host string, port int, username string, password string) *SshManagerRemote {
-	remote := &SshManagerRemote{
-		SshManagerRemoteData: SshManagerRemoteData{
-			Name:     name,
-			Host:     host,
-			Port:     port,
-			Username: username,
-		},
-		Manager: manager,
-	}
-	// remote.Auth = []ssh.AuthMethod{ssh.Password(password)}
+func (manager *SshManager) NewSshManagerRemote(name string, host string, port int, username string) *SshManagerRemote {
+	remote := manager.NewSshManagerRemoteFromData(SshManagerRemoteData{
+		Name:     name,
+		Host:     host,
+		Port:     port,
+		Username: username,
+	})
+
 	return remote
 }
 
 func (manager *SshManager) NewSshManagerRemoteFromData(data SshManagerRemoteData) *SshManagerRemote {
 	remote := &SshManagerRemote{
-		SshManagerRemoteData: data,
-		Manager: manager,
+		SshManagerRemoteData: SshManagerRemoteData{
+			Name:     data.Name,
+			Host:     data.Host,
+			Port:     data.Port,
+			Username: data.Username,
+			ID:				data.ID,
+		},
 	}
 
-	remote.Auth = []ssh.AuthMethod{ssh.KeyboardInteractive(manager.promptKeyboardChallenge)}
+	remote.Auth = []ssh.AuthMethod{
+		ssh.PasswordCallback(manager.promptPasswordChallenge),
+		ssh.KeyboardInteractive(manager.promptKeyboardChallenge),
+	}
+
 	return remote
 }
+
 
 func (manager *SshManager) promptKeyboardChallenge(user, instruction string, questions []string, echos []bool) (answers []string, err error) {
 	answers = make([]string, len(questions))
@@ -46,6 +53,10 @@ func (manager *SshManager) promptKeyboardChallenge(user, instruction string, que
 	}
 	
 	return answers, nil
+}
+
+func (manager *SshManager) promptPasswordChallenge() (string, error) {
+	return manager.PromptUser("Password: "), nil
 }
 
 func (remote *SshManagerRemote) Initialize() {
@@ -67,8 +78,11 @@ func (remote *SshManagerRemote) Connect() (bool, error) {
 	config := &ssh.ClientConfig{
 		User: remote.Username,
 		Auth: remote.Auth,
+		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
 	}
-	client, err := ssh.Dial("tcp", remote.Host+":"+strconv.Itoa(remote.Port), config)
+	connectionString := remote.Host + ":" + strconv.Itoa(remote.Port)
+	fmt.Println("Connecting to " + connectionString)
+	client, err := ssh.Dial("tcp", connectionString, config)
 	if err != nil {
 		return false, err
 	}

@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"ssh-tunnel-manager/ssh_manager"
 
 	"github.com/wailsapp/wails/v2/pkg/runtime"
@@ -33,20 +34,20 @@ func (a *App) startup(ctx context.Context) {
 	a.manager.PromptUser = a.PromptUser
 }
 
-func (a *App) GetRemotes() []*ssh_manager.SshManagerRemote {
+func (a *App) GetRemotes() []*ssh_manager.SshManagerRemoteData {
 	return a.manager.GetRemotes()
 }
 
-func (a *App) AddRemote(name string, host string, port int, username string, password string) (bool, error) {
-	return a.manager.AddRemote(name, host, port, username, password)
+func (a *App) AddRemote(name string, host string, port int, username string) (bool, error) {
+	return a.manager.AddRemote(name, host, port, username)
 }
 
-func (a *App) RemoveRemote(name string) (bool, error) {
-	return a.manager.RemoveRemote(name)
+func (a *App) RemoveRemote(id string) (bool, error) {
+	return a.manager.RemoveRemote(id)
 }
 
-func (a *App) GetRemote(name string) (*ssh_manager.SshManagerRemote, error) {
-	return a.manager.GetRemote(name)
+func (a *App) GetRemote(id string) (*ssh_manager.SshManagerRemote, error) {
+	return a.manager.GetRemote(id)
 }
 
 func (a *App) GetTunnels(remoteName string) []*ssh_manager.SshManagerTunnel {
@@ -73,8 +74,9 @@ func (a *App) RemoveTunnel(remoteName string, localPort int) (bool, error) {
 	return remote.RemoveTunnel(localPort)
 }
 
-func (a *App) Connect(remoteName string) (bool, error) {
-	remote, err := a.manager.GetRemote(remoteName)
+func (a *App) Connect(id string) (bool, error) {
+	fmt.Println("Initiating connection to remote with ID" + id)
+	remote, err := a.manager.GetRemote(id)
 	if err != nil {
 		return false, err
 	}

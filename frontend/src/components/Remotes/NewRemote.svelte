@@ -14,7 +14,6 @@
       Host: data.host.toString(),
       Port: parseInt(data.port.toString()),
       Username: data.username.toString(),
-      Password: data.password.toString(),
     }
 
     await addRemote(newRemote)
@@ -44,22 +43,38 @@
       on:submit|preventDefault={saveNewRemote}
     >
       <label class="input input-bordered flex items-center">
-        <input type="text" name="name" placeholder="Name" required />
-      </label>
-      <label class="input input-bordered flex items-center">
-        <input type="text" name="host" placeholder="Host" required />
-      </label>
-      <label class="input input-bordered flex items-center">
-        <input type="number" name="port" placeholder="Port" required />
-      </label>
-      <label class="input input-bordered flex items-center">
-        <input type="text" name="username" placeholder="Username" required />
+        <input
+          class="grow"
+          type="text"
+          name="name"
+          placeholder="Name"
+          required
+        />
       </label>
       <label class="input input-bordered flex items-center">
         <input
-          type="password"
-          name="password"
-          placeholder="Password"
+          class="grow"
+          type="text"
+          name="host"
+          placeholder="Host"
+          required
+        />
+      </label>
+      <label class="input input-bordered flex items-center">
+        <input
+          class="grow"
+          type="number"
+          name="port"
+          placeholder="Port"
+          required
+        />
+      </label>
+      <label class="input input-bordered flex items-center">
+        <input
+          class="grow"
+          type="text"
+          name="username"
+          placeholder="Username"
           required
         />
       </label>

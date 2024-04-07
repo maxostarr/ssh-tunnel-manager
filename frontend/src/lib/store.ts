@@ -7,7 +7,6 @@ export interface Remote {
   Host: string
   Port: number
   Username: string
-  Password: string
 }
 
 export type NewRemote = Omit<Remote, "ID">
@@ -20,12 +19,6 @@ export const loadRemotes = async () => {
 }
 
 export const addRemote = async (remote: NewRemote) => {
-  await AddRemote(
-    remote.Name,
-    remote.Host,
-    remote.Port,
-    remote.Username,
-    remote.Password,
-  )
+  await AddRemote(remote.Name, remote.Host, remote.Port, remote.Username)
   return loadRemotes()
 }

@@ -82,11 +82,14 @@ func GenerateUUID() string {
 
 func InsertRemote(remoteData *SshManagerRemoteData) (string, error) {
 	id := GenerateUUID()
-	_, err := connection.Exec(`INSERT INTO remotes (id, name, host, port, username, password)
+	fmt.Println("Inserting remote", remoteData)
+	_, err := connection.Exec(`INSERT INTO remotes (id, name, host, port, username)
 		VALUES (?, ?, ?, ?, ?);`, id, remoteData.Name, remoteData.Host, remoteData.Port, remoteData.Username)
 	if err != nil {
+		fmt.Println("Error inserting remote:", err)
 		return "", err
 	}
+	fmt.Println("Inserted remote", remoteData)
 	return id, nil
 }
 
@@ -134,6 +137,7 @@ func GetRemotes() ([]*SshManagerRemoteData, error) {
 		if err != nil {
 			return nil, err
 		}
+		fmt.Println(remoteData)
 		remotes = append(remotes, &remoteData)
 	}
 	return remotes, nil

@@ -33,7 +33,6 @@ func NewSshManagerTunnel(localPort int, remoteHost string, remotePort int, remot
 		Remote: remote,
 	}
 	
-	// remote.Tunnels = append(remote.Tunnels, tunnel)
 	return tunnel
 }
 

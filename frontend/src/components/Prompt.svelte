@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { EventsEmit, EventsOn } from "../../wailsjs/runtime"
   let resolve
   let reject
 
@@ -32,6 +33,14 @@
     reject("cancelled")
     close()
   }
+
+  EventsOn("prompt", async (prompt) => {
+    console.log("🚀 ~ EventsOn ~ prompt:", prompt)
+    const res = await prompt(prompt)
+    console.log("🚀 ~ EventsOn ~ res:", res)
+
+    EventsEmit("prompt-response", res)
+  })
 </script>
 
 <dialog class="modal card" id="newRemote">
