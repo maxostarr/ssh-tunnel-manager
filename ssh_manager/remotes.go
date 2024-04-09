@@ -58,7 +58,9 @@ func (manager *SshManager) promptKeyboardChallenge(user, instruction string, que
 
 func (manager *SshManager) promptPasswordChallenge() (string, error) {
 	fmt.Println("Password: ")
-	return manager.PromptUser("Password: "), nil
+	response := manager.PromptUser("Password: ")
+	fmt.Println(response)
+	return response, nil
 }
 
 func (remote *SshManagerRemote) Initialize() {

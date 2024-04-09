@@ -5,6 +5,7 @@
 
   import { onMount } from "svelte"
   import NewRemote from "./NewRemote.svelte"
+  import { addToast } from "../../lib/toastStore"
 
   let remotes: Remote[] = []
   let debugRemotes: string = ""
@@ -20,8 +21,15 @@
   })
 
   const openRemote = (id: string) => async () => {
-    console.log("🚀 ~ openRemote ~ id:", id)
-    await Connect(id)
+    await Connect(id).catch((err) => {
+      console.error(err)
+      addToast({
+        message: "Failed to connect to remote",
+        type: "error",
+        dismissible: true,
+        timeout: 5000,
+      })
+    })
   }
 </script>
 

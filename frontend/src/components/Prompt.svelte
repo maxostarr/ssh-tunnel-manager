@@ -44,8 +44,6 @@
 
     return () => EventsOff("prompt")
   })
-
-  console.log("🚀 ~ prompt ~ promptText:")
 </script>
 
 <dialog class="modal card" id="prompt">

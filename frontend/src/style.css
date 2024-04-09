@@ -6,3 +6,7 @@ body,
 #app {
   height: 100vh;
 }
+
+.toast > * {
+  animation: unset;
+}
