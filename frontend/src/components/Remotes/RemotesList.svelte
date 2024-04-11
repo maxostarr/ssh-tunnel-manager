@@ -1,5 +1,10 @@
 <script lang="ts">
-  import { loadRemotes, remotesStore, selectRemote } from "../../lib/store"
+  import {
+    loadRemotes,
+    remotesStore,
+    selectRemote,
+    selectedRemoteStore,
+  } from "../../lib/store"
 
   import { onMount } from "svelte"
   import NewRemote from "./NewRemote.svelte"
@@ -54,6 +59,8 @@
               on:dblclick={() => openRemote(remote.id)}
               tabindex="0"
               role="button"
+              class="cursor-pointer"
+              class:selected={remote.id === $selectedRemoteStore.id}
             >
               <td>
                 <h2>{remote.name}</h2>
@@ -79,6 +86,11 @@
   }
 
   .table tr:hover {
+    background-color: oklch(var(--p));
+    color: oklch(var(--pc));
+  }
+
+  .table tr.selected {
     background-color: oklch(var(--p));
     color: oklch(var(--pc));
   }
