@@ -1,32 +1,24 @@
 <script lang="ts">
   import "./style.css"
-  import Remotes from "./components/Remotes/Remotes.svelte"
+  import RemotesList from "./components/Remotes/RemotesList.svelte"
   import Prompt from "./components/Prompt.svelte"
   import Toasts from "./components/Toast/Toasts.svelte"
-  import { addToast } from "./lib/toastStore"
-
-  const addToastHandler = () => {
-    addToast({
-      message:
-        "This is a toast" +
-        Array.from({ length: Math.floor(10 * Math.random()) })
-          .map(() => "!")
-          .join(""),
-      type: (["info", "success", "warning", "error"] as const)[
-        Math.floor(4 * Math.random())
-      ],
-      dismissible: true,
-      timeout: null,
-    })
-  }
+  import RemoteDetails from "./components/Remotes/RemoteDetails.svelte"
+  import { selectedRemoteStore } from "./lib/store"
 </script>
 
 <Prompt />
 <Toasts />
 
 <main class="h-full grid">
-  <Remotes />
-  <button on:click={addToastHandler}>Add Toast</button>
+  <RemotesList />
+  {#if $selectedRemoteStore}
+    <RemoteDetails />
+  {:else}
+    <div class="flex items-center justify-center">
+      <h1 class="text-3xl text-gray-500">Select a remote to connect</h1>
+    </div>
+  {/if}
 </main>
 
 <style>

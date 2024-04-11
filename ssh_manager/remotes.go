@@ -103,6 +103,11 @@ func (remote *SshManagerRemote) Disconnect() {
 
 func (remote *SshManagerRemote) AddTunnel(localPort int, remoteHost string, remotePort int) (bool, error) {
 	tunnel := NewSshManagerTunnel(localPort, remoteHost, remotePort, remote)
+	id, err := InsertTunnel(&tunnel.SshManagerTunnelData)
+	if err != nil {
+		return false, err
+	}
+	tunnel.ID = id
 	remote.Tunnels = append(remote.Tunnels, tunnel)
 	return true, nil
 }

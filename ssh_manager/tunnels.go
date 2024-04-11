@@ -8,7 +8,6 @@ import (
 	"strconv"
 	"sync"
 
-	"github.com/google/uuid"
 	"golang.org/x/crypto/ssh"
 )
 
@@ -22,7 +21,7 @@ type SshManagerTunnel struct {
 func NewSshManagerTunnel(localPort int, remoteHost string, remotePort int, remote *SshManagerRemote) *SshManagerTunnel {
 	tunnel := &SshManagerTunnel{
 		SshManagerTunnelData: SshManagerTunnelData{
-			ID:         uuid.New().String(),
+			// ID:         uuid.New().String(),
 			LocalPort:  localPort,
 			RemoteHost: remoteHost,
 			RemotePort: remotePort,

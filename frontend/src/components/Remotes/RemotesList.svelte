@@ -1,13 +1,12 @@
 <script lang="ts">
   import { AddRemote, Connect } from "../../../wailsjs/go/main/App"
-  import { loadRemotes, remotesStore } from "../../lib/store"
+  import { loadRemotes, remotesStore, selectRemote } from "../../lib/store"
   import type { Remote } from "../../lib/store"
 
   import { onMount } from "svelte"
   import NewRemote from "./NewRemote.svelte"
   import { addToast } from "../../lib/toastStore"
 
-  let remotes: Remote[] = []
   let debugRemotes: string = ""
   let showNewRemote: () => void
 
@@ -16,21 +15,8 @@
   })
 
   remotesStore.subscribe((value) => {
-    remotes = value
     debugRemotes = JSON.stringify(value, null, 2)
   })
-
-  const openRemote = (id: string) => async () => {
-    await Connect(id).catch((err) => {
-      console.error(err)
-      addToast({
-        message: "Failed to connect to remote",
-        type: "error",
-        dismissible: true,
-        timeout: 5000,
-      })
-    })
-  }
 </script>
 
 <div class="card-bordered w-96 bg-base-100 shadow-xl h-full">
@@ -64,8 +50,12 @@
     <div class="overflow-x-auto">
       <table class="table">
         <tbody>
-          {#each remotes as remote}
-            <tr on:click={openRemote(remote.ID)} tabindex="0" role="button">
+          {#each $remotesStore as remote}
+            <tr
+              on:click={() => selectRemote(remote.ID)}
+              tabindex="0"
+              role="button"
+            >
               <td>
                 <h2>{remote.Name}</h2>
               </td>

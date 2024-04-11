@@ -50,16 +50,16 @@ func (a *App) GetRemote(id string) (*ssh_manager.SshManagerRemote, error) {
 	return a.manager.GetRemote(id)
 }
 
-func (a *App) GetTunnels(remoteName string) []*ssh_manager.SshManagerTunnel {
-	remote, err := a.manager.GetRemote(remoteName)
+func (a *App) GetTunnels(remoteId string) []*ssh_manager.SshManagerTunnel {
+	remote, err := a.manager.GetRemote(remoteId)
 	if err != nil {
 		return nil
 	}
 	return remote.Tunnels
 }
 
-func (a *App) AddTunnel(remoteName string, localPort int, remoteHost string, remotePort int) (bool, error) {
-	remote, err := a.manager.GetRemote(remoteName)
+func (a *App) AddTunnel(remoteId string, localPort int, remoteHost string, remotePort int) (bool, error) {
+	remote, err := a.manager.GetRemote(remoteId)
 	if err != nil {
 		return false, err
 	}
