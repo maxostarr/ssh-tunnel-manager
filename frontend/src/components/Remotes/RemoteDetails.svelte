@@ -7,7 +7,7 @@
 <div>
   <button
     class="btn btn-primary"
-    on:click={() => openRemote($selectedRemoteStore.ID)}>Connect</button
+    on:click={() => openRemote($selectedRemoteStore.id)}>Connect</button
   >
   <Tunnels />
 </div>

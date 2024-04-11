@@ -18,9 +18,9 @@
       {#each $tunnelsStore as tunnel, i}
         <tr>
           <td>{i + 1}</td>
-          <td>{tunnel.LocalPort}</td>
-          <td>{tunnel.RemoteHost}</td>
-          <td>{tunnel.RemotePort}</td>
+          <td>{tunnel.local_port}</td>
+          <td>{tunnel.remote_host}</td>
+          <td>{tunnel.remote_port}</td>
         </tr>
       {/each}
     </tbody>

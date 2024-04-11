@@ -19,7 +19,6 @@ export const tunnelsStore = writable([] as Tunnel[])
 export const loadRemotes = async () => {
   const remotesData = await GetRemotes()
   const singleRemote = remotesData[0]
-  const test = singleRemote.test
 
   remotesStore.set(remotesData)
 }
@@ -30,21 +29,21 @@ export const loadTunnels = async (remoteId: string) => {
 }
 
 export const addRemote = async (remote: NewRemote) => {
-  await AddRemote(remote.Name, remote.Host, remote.Port, remote.Username)
+  await AddRemote(remote.name, remote.host, remote.port, remote.username)
   return loadRemotes()
 }
 
 export const addTunnel = async (remote: Remote, tunnel: NewTunnel) => {
   await AddTunnel(
-    remote.ID,
-    tunnel.LocalPort,
-    tunnel.RemoteHost,
-    tunnel.RemotePort,
+    remote.id,
+    tunnel.local_port,
+    tunnel.remote_host,
+    tunnel.remote_port,
   )
-  return loadTunnels(tunnel.RemoteID)
+  return loadTunnels(tunnel.remote_id)
 }
 
 export const selectRemote = (remote: Remote) => {
   selectedRemoteStore.set(remote)
-  loadTunnels(remote.ID)
+  loadTunnels(remote.id)
 }

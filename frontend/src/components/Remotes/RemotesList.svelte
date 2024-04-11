@@ -1,11 +1,8 @@
 <script lang="ts">
-  import { AddRemote, Connect } from "../../../wailsjs/go/main/App"
   import { loadRemotes, remotesStore, selectRemote } from "../../lib/store"
-  import type { Remote } from "../../lib/store"
 
   import { onMount } from "svelte"
   import NewRemote from "./NewRemote.svelte"
-  import { addToast } from "../../lib/toastStore"
   import { openRemote } from "../../lib/utils"
 
   let debugRemotes: string = ""
@@ -54,15 +51,15 @@
           {#each $remotesStore as remote}
             <tr
               on:click={() => selectRemote(remote)}
-              on:dblclick={() => openRemote(remote.ID)}
+              on:dblclick={() => openRemote(remote.id)}
               tabindex="0"
               role="button"
             >
               <td>
-                <h2>{remote.Name}</h2>
+                <h2>{remote.name}</h2>
               </td>
               <td>
-                <p>{remote.Host}</p>
+                <p>{remote.host}</p>
               </td>
             </tr>
           {/each}
