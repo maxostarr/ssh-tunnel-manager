@@ -40,7 +40,7 @@
       const res = await prompt(promptString).catch((err) => null)
 
       if (res === null) {
-        EventsEmit("prompt-response", "cancelled")
+        EventsEmit("prompt-response", "cancelled", "")
         return
       }
 
