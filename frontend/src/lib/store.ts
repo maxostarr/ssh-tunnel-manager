@@ -18,11 +18,14 @@ export const tunnelsStore = writable([] as Tunnel[])
 
 export const loadRemotes = async () => {
   const remotesData = await GetRemotes()
+  const singleRemote = remotesData[0]
+  const test = singleRemote.test
+
   remotesStore.set(remotesData)
 }
 
 export const loadTunnels = async (remoteId: string) => {
-  const tunnelsData = await GetTunnels(remoteId)
+  const tunnelsData = (await GetTunnels(remoteId)) || []
   tunnelsStore.set(tunnelsData)
 }
 

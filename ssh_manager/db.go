@@ -13,19 +13,19 @@ import (
 var connection *sql.DB
 
 type SshManagerRemoteData struct {
-	ID       string
-	Name     string
-	Host     string
-	Port     int
-	Username string
+	ID       string `json:"id"`
+	Name     string	`json:"name"`
+	Host     string	`json:"host"`
+	Port     int	`json:"port"`
+	Username string	`json:"username"`
 }
 
 type SshManagerTunnelData struct {
-	ID         string
-	LocalPort  int
-	RemoteHost string
-	RemotePort int
-	RemoteID   string
+	ID         string `json:"id"`
+	LocalPort  int	`json:"local_port"`
+	RemoteHost string	`json:"remote_host"`
+	RemotePort int	`json:"remote_port"`
+	RemoteID   string	`json:"remote_id"`
 }
 
 func ConnectDB() {

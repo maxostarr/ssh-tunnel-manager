@@ -91,13 +91,18 @@ func (a *App) Disconnect(remoteName string) {
 	remote.Disconnect()
 }
 
-func (a *App) PromptUser(prompt string) string {
+func (a *App) PromptUser(prompt string) ssh_manager.PromptResponse {
 	fmt.Println("Prompting user with: " + prompt)
 	runtime.EventsEmit(a.ctx, "prompt", prompt)
 	// Wait for the response
-	responseChannel := make(chan string)
+	responseChannel := make(chan ssh_manager.PromptResponse)
 	runtime.EventsOnce(a.ctx, "prompt-response", func(data ...interface{}) {
-		responseChannel <- data[0].(string)
+		promptResponse := ssh_manager.PromptResponse{
+			Status: ssh_manager.PromptResponseStatus(data[0].(string)),
+			Response: data[1].(string),
+		}
+
+		responseChannel <- promptResponse
 	})
 
 	return <-responseChannel

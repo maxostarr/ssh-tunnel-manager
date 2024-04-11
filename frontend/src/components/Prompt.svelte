@@ -37,9 +37,14 @@
 
   onMount(() => {
     EventsOn("prompt", async (promptString) => {
-      const res = await prompt(promptString)
+      const res = await prompt(promptString).catch((err) => null)
 
-      EventsEmit("prompt-response", res)
+      if (res === null) {
+        EventsEmit("prompt-response", "cancelled")
+        return
+      }
+
+      EventsEmit("prompt-response", "submitted", res)
     })
 
     return () => EventsOff("prompt")

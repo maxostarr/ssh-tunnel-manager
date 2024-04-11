@@ -50,17 +50,22 @@ func (manager *SshManager) promptKeyboardChallenge(user, instruction string, que
 	fmt.Println(instruction)
 	answers = make([]string, len(questions))
 	for i := range questions {
-		answers[i] = manager.PromptUser(questions[i])
+		answer := manager.PromptUser(questions[i])
+		if answer.Status == PromptResponseStatusCancelled {
+			return nil, fmt.Errorf("keyboard challenge cancelled")
+		}
+		answers[i] = answer.Response
 	}
 	
 	return answers, nil
 }
 
 func (manager *SshManager) promptPasswordChallenge() (string, error) {
-	fmt.Println("Password: ")
 	response := manager.PromptUser("Password: ")
-	fmt.Println(response)
-	return response, nil
+	if response.Status == PromptResponseStatusCancelled {
+		return "", fmt.Errorf("password prompt cancelled")
+	}
+	return response.Response, nil
 }
 
 func (remote *SshManagerRemote) Initialize() {

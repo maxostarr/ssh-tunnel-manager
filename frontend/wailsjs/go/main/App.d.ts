@@ -16,7 +16,7 @@ export function GetRemotes():Promise<Array<ssh_manager.SshManagerRemoteData>>;
 
 export function GetTunnels(arg1:string):Promise<Array<ssh_manager.SshManagerTunnel>>;
 
-export function PromptUser(arg1:string):Promise<string>;
+export function PromptUser(arg1:string):Promise<ssh_manager.PromptResponse>;
 
 export function RemoveRemote(arg1:string):Promise<boolean>;
 

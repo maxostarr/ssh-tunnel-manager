@@ -6,6 +6,7 @@
   import { onMount } from "svelte"
   import NewRemote from "./NewRemote.svelte"
   import { addToast } from "../../lib/toastStore"
+  import { openRemote } from "../../lib/utils"
 
   let debugRemotes: string = ""
   let showNewRemote: () => void
@@ -52,7 +53,8 @@
         <tbody>
           {#each $remotesStore as remote}
             <tr
-              on:click={() => selectRemote(remote.ID)}
+              on:click={() => selectRemote(remote)}
+              on:dblclick={() => openRemote(remote.ID)}
               tabindex="0"
               role="button"
             >

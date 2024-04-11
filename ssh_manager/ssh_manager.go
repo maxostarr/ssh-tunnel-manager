@@ -1,8 +1,20 @@
 package ssh_manager
 
+type PromptResponseStatus string
+
+const (
+	PromptResponseStatusSuccess 		PromptResponseStatus = "success"
+	PromptResponseStatusCancelled		PromptResponseStatus = "cancelled"
+)
+
+type PromptResponse struct {
+	Status PromptResponseStatus
+	Response string
+}
+
 type SshManager struct {
 	Remotes []*SshManagerRemote
-	PromptUser func(prompt string) string
+	PromptUser func(prompt string) PromptResponse
 }
 
 
