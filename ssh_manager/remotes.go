@@ -7,12 +7,11 @@ import (
 	"golang.org/x/crypto/ssh"
 )
 
-
 type SshManagerRemote struct {
-	SshManagerRemoteData	
-	Auth    []ssh.AuthMethod
-	Client  *ssh.Client
-	Tunnels []*SshManagerTunnel
+	SshManagerRemoteData
+	Auth    []ssh.AuthMethod    `json:"-"`
+	Client  *ssh.Client         `json:"-"`
+	Tunnels []*SshManagerTunnel `json:"tunnels"`
 }
 
 func (manager *SshManager) NewSshManagerRemote(name string, host string, port int, username string) *SshManagerRemote {
@@ -33,7 +32,7 @@ func (manager *SshManager) NewSshManagerRemoteFromData(data SshManagerRemoteData
 			Host:     data.Host,
 			Port:     data.Port,
 			Username: data.Username,
-			ID:				data.ID,
+			ID:       data.ID,
 		},
 	}
 
@@ -45,7 +44,6 @@ func (manager *SshManager) NewSshManagerRemoteFromData(data SshManagerRemoteData
 	return remote
 }
 
-
 func (manager *SshManager) promptKeyboardChallenge(user, instruction string, questions []string, echos []bool) (answers []string, err error) {
 	fmt.Println(instruction)
 	answers = make([]string, len(questions))
@@ -56,7 +54,7 @@ func (manager *SshManager) promptKeyboardChallenge(user, instruction string, que
 		}
 		answers[i] = answer.Response
 	}
-	
+
 	return answers, nil
 }
 
@@ -70,6 +68,7 @@ func (manager *SshManager) promptPasswordChallenge() (string, error) {
 
 func (remote *SshManagerRemote) Initialize() {
 	tunnelsData, err := GetTunnelsByRemote(remote.ID)
+	remote.Tunnels = []*SshManagerTunnel{}
 	if err != nil {
 		panic(err)
 	}
@@ -85,8 +84,8 @@ func (remote *SshManagerRemote) Save() (string, error) {
 
 func (remote *SshManagerRemote) Connect() (bool, error) {
 	config := &ssh.ClientConfig{
-		User: remote.Username,
-		Auth: remote.Auth,
+		User:            remote.Username,
+		Auth:            remote.Auth,
 		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
 	}
 	connectionString := remote.Host + ":" + strconv.Itoa(remote.Port)

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { tunnelsStore } from "../../lib/store"
+  import { selectedRemoteStore } from "../../lib/store"
 </script>
 
 <div class="overflow-x-auto">
@@ -15,7 +15,7 @@
     </thead>
     <tbody>
       <!-- body -->
-      {#each $tunnelsStore as tunnel, i}
+      {#each $selectedRemoteStore.tunnels as tunnel, i}
         <tr>
           <td>{i + 1}</td>
           <td>{tunnel.local_port}</td>

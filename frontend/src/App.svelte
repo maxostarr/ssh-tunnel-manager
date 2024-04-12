@@ -12,7 +12,7 @@
 
 <main class="h-full grid">
   <RemotesList />
-  {#if $selectedRemoteStore}
+  {#if $selectedRemoteStore.id}
     <RemoteDetails />
   {:else}
     <div class="flex items-center justify-center">

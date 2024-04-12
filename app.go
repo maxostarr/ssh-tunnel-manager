@@ -12,8 +12,8 @@ import (
 
 // App struct
 type App struct {
-	ctx      context.Context
-	manager  *ssh_manager.SshManager
+	ctx     context.Context
+	manager *ssh_manager.SshManager
 }
 
 // NewApp creates a new App application struct
@@ -98,7 +98,7 @@ func (a *App) PromptUser(prompt string) ssh_manager.PromptResponse {
 	responseChannel := make(chan ssh_manager.PromptResponse)
 	runtime.EventsOnce(a.ctx, "prompt-response", func(data ...interface{}) {
 		promptResponse := ssh_manager.PromptResponse{
-			Status: ssh_manager.PromptResponseStatus(data[0].(string)),
+			Status:   ssh_manager.PromptResponseStatus(data[0].(string)),
 			Response: data[1].(string),
 		}
 
@@ -123,7 +123,6 @@ func (a *App) PromptUser(prompt string) ssh_manager.PromptResponse {
 // 	// Connect to the remote host
 // 	shouldReturn, returnValue := sshManager.Connect(int(localPort), remoteHost, int(remotePort))
 
-
 // 	// shouldReturn, returnValue := Connect(localPort, remoteHost, remotePort)
 // 	if shouldReturn {
 // 		return returnValue
@@ -131,5 +130,3 @@ func (a *App) PromptUser(prompt string) ssh_manager.PromptResponse {
 
 // 	return nil
 // }
-
-

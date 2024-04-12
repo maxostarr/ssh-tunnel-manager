@@ -113,15 +113,15 @@ func GetRemote(id string) (SshManagerRemoteData, error) {
 	return remoteData, nil
 }
 
-func GetTunnel(id string) (*SshManagerTunnelData, error) {
-	var tunnelData SshManagerTunnelData
-	err := connection.QueryRow(`SELECT local_port, remote_host, remote_port, remote_id FROM tunnels WHERE id = ?;`, id).Scan(&tunnelData.LocalPort, &tunnelData.RemoteHost, &tunnelData.RemotePort, &tunnelData.RemoteID)
-	if err != nil {
-		return &SshManagerTunnelData{}, err
-	}
-	tunnelData.ID = id
-	return &tunnelData, nil
-}
+// func GetTunnel(id string) (*SshManagerTunnelData, error) {
+// 	var tunnelData SshManagerTunnelData
+// 	err := connection.QueryRow(`SELECT local_port, remote_host, remote_port, remote_id FROM tunnels WHERE id = ?;`, id).Scan(&tunnelData.LocalPort, &tunnelData.RemoteHost, &tunnelData.RemotePort, &tunnelData.RemoteID)
+// 	if err != nil {
+// 		return &SshManagerTunnelData{}, err
+// 	}
+// 	tunnelData.ID = id
+// 	return &tunnelData, nil
+// }
 
 func GetRemotes() ([]*SshManagerRemoteData, error) {
 	rows, err := connection.Query(`SELECT id, name, host, port, username FROM remotes;`)

@@ -1,31 +1,33 @@
 <script lang="ts">
-  import { addRemote, type NewRemote } from "../../lib/store"
+  import {
+    selectedRemoteStore,
+    type NewTunnel,
+    addTunnel,
+  } from "../../lib/store"
 
-  import { onMount } from "svelte"
-
-  const saveNewRemote = async (event: Event) => {
+  const saveNewTunnel = async (event: Event) => {
     event.preventDefault()
     const form = event.target as HTMLFormElement
     const formData = new FormData(form)
     const data = Object.fromEntries(formData.entries())
 
-    const newRemote: NewRemote = {
-      name: data.name.toString(),
-      host: data.host.toString(),
-      port: parseInt(data.port.toString()),
-      username: data.username.toString(),
+    const newTunnel: NewTunnel = {
+      local_port: parseInt(data.local_port.toString()),
+      remote_host: data.remote_host.toString(),
+      remote_port: parseInt(data.remote_port.toString()),
+      remote_id: $selectedRemoteStore.id,
     }
 
-    await addRemote(newRemote)
+    await addTunnel(newTunnel)
     close()
   }
 
   export const show = () => {
-    ;(document.getElementById("newRemote") as HTMLDialogElement).showModal()
+    ;(document.getElementById("newTunnel") as HTMLDialogElement).showModal()
   }
 
   export const close = () => {
-    ;(document.getElementById("newRemote") as HTMLDialogElement).close()
+    ;(document.getElementById("newTunnel") as HTMLDialogElement).close()
   }
 
   // onMount(() => {
@@ -33,21 +35,21 @@
   // })
 </script>
 
-<dialog class="modal card" id="newRemote">
+<dialog class="modal card" id="newTunnel">
   <div class="modal-box card-body">
     <h2 class="card-title">New Remote</h2>
     <div class="divider"></div>
     <form
       action="saveNewRemote"
       class="form-control flex gap-2"
-      on:submit|preventDefault={saveNewRemote}
+      on:submit|preventDefault={saveNewTunnel}
     >
       <label class="input input-bordered flex items-center">
         <input
           class="grow"
-          type="text"
-          name="name"
-          placeholder="Name"
+          type="number"
+          name="local_port"
+          placeholder="Local Port"
           required
         />
       </label>
@@ -55,8 +57,8 @@
         <input
           class="grow"
           type="text"
-          name="host"
-          placeholder="Host"
+          name="remote_host"
+          placeholder="Remote Host"
           required
         />
       </label>
@@ -64,20 +66,12 @@
         <input
           class="grow"
           type="number"
-          name="port"
-          placeholder="Port"
+          name="remote_port"
+          placeholder="Remote Port"
           required
         />
       </label>
-      <label class="input input-bordered flex items-center">
-        <input
-          class="grow"
-          type="text"
-          name="username"
-          placeholder="Username"
-          required
-        />
-      </label>
+
       <div class="join">
         <button class="btn join-item flex-1 btn-primary" type="submit"
           >Save</button

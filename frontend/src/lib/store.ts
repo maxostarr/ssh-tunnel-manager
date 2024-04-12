@@ -2,30 +2,30 @@ import { writable } from "svelte/store"
 import {
   AddRemote,
   AddTunnel,
+  GetRemote,
   GetRemotes,
   GetTunnels,
 } from "../../wailsjs/go/main/App.js"
 
-export type Remote = Awaited<ReturnType<typeof GetRemotes>>[0]
+export type RemoteData = Awaited<ReturnType<typeof GetRemotes>>[0]
+export type RemoteFull = Awaited<ReturnType<typeof GetRemote>>
 export type Tunnel = Awaited<ReturnType<typeof GetTunnels>>[0]
 
-export type NewRemote = Omit<Remote, "ID">
-export type NewTunnel = Omit<Tunnel, "ID">
+export type NewRemote = Omit<RemoteData, "id">
+export type NewTunnel = Omit<Tunnel, "id">
 
-export const remotesStore = writable([] as Remote[])
-export const selectedRemoteStore = writable(null as Remote | null)
-export const tunnelsStore = writable([] as Tunnel[])
+export const remotesStore = writable([] as RemoteData[])
+export const selectedRemoteStore = writable({ tunnels: [] } as RemoteFull)
 
 export const loadRemotes = async () => {
   const remotesData = await GetRemotes()
-  const singleRemote = remotesData[0]
-
   remotesStore.set(remotesData)
 }
 
-export const loadTunnels = async (remoteId: string) => {
-  const tunnelsData = (await GetTunnels(remoteId)) || []
-  tunnelsStore.set(tunnelsData)
+export const loadRemoteDetails = async (remoteId: string) => {
+  const remoteDetails = await GetRemote(remoteId)
+  remoteDetails.tunnels = remoteDetails.tunnels ?? []
+  selectedRemoteStore.set(remoteDetails)
 }
 
 export const addRemote = async (remote: NewRemote) => {
@@ -33,17 +33,17 @@ export const addRemote = async (remote: NewRemote) => {
   return loadRemotes()
 }
 
-export const addTunnel = async (remote: Remote, tunnel: NewTunnel) => {
+export const addTunnel = async (tunnel: NewTunnel) => {
+  console.log("🚀 ~ addTunnel ~ tunnel:", tunnel)
   await AddTunnel(
-    remote.id,
+    tunnel.remote_id,
     tunnel.local_port,
     tunnel.remote_host,
     tunnel.remote_port,
   )
-  return loadTunnels(tunnel.remote_id)
+  return loadRemoteDetails(tunnel.remote_id)
 }
 
-export const selectRemote = (remote: Remote) => {
-  selectedRemoteStore.set(remote)
-  loadTunnels(remote.id)
+export const selectRemote = (remote: RemoteData) => {
+  loadRemoteDetails(remote.id)
 }

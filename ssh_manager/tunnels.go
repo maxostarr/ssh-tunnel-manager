@@ -12,39 +12,37 @@ import (
 )
 
 type SshManagerTunnel struct {
-	SshManagerTunnelData	
-	Remote 		*SshManagerRemote
-	stop      chan struct{}
-	wg        sync.WaitGroup
+	SshManagerTunnelData
+	Remote *SshManagerRemote `json:"-"`
+	stop   chan struct{}     `json:"-"`
+	wg     sync.WaitGroup    `json:"-"`
 }
 
 func NewSshManagerTunnel(localPort int, remoteHost string, remotePort int, remote *SshManagerRemote) *SshManagerTunnel {
 	tunnel := &SshManagerTunnel{
 		SshManagerTunnelData: SshManagerTunnelData{
-			// ID:         uuid.New().String(),
 			LocalPort:  localPort,
 			RemoteHost: remoteHost,
 			RemotePort: remotePort,
 			RemoteID:   remote.ID,
 		},
-		stop: make(chan struct{}),
-		wg: sync.WaitGroup{},
+		stop:   make(chan struct{}),
+		wg:     sync.WaitGroup{},
 		Remote: remote,
 	}
-	
+
 	return tunnel
 }
 
 func NewSshManagerTunnelFromData(data SshManagerTunnelData, remote *SshManagerRemote) *SshManagerTunnel {
 	tunnel := &SshManagerTunnel{
 		SshManagerTunnelData: data,
-		Remote: remote,
-		stop: make(chan struct{}),
-		wg: sync.WaitGroup{},
+		Remote:               remote,
+		stop:                 make(chan struct{}),
+		wg:                   sync.WaitGroup{},
 	}
 	return tunnel
 }
-
 
 func handleConn(localConn net.Conn, client *ssh.Client, remoteHost string, remotePort int, stop chan struct{}, wg *sync.WaitGroup) {
 	defer localConn.Close()
@@ -79,8 +77,8 @@ func handleConn(localConn net.Conn, client *ssh.Client, remoteHost string, remot
 
 func (tunnel *SshManagerTunnel) Connect() (bool, error) {
 	config := &ssh.ClientConfig{
-		User: tunnel.Remote.Username,
-		Auth: tunnel.Remote.Auth,
+		User:            tunnel.Remote.Username,
+		Auth:            tunnel.Remote.Auth,
 		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
 	}
 

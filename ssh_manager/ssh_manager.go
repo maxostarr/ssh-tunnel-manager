@@ -3,20 +3,19 @@ package ssh_manager
 type PromptResponseStatus string
 
 const (
-	PromptResponseStatusSuccess 		PromptResponseStatus = "success"
-	PromptResponseStatusCancelled		PromptResponseStatus = "cancelled"
+	PromptResponseStatusSuccess   PromptResponseStatus = "success"
+	PromptResponseStatusCancelled PromptResponseStatus = "cancelled"
 )
 
 type PromptResponse struct {
-	Status PromptResponseStatus
+	Status   PromptResponseStatus
 	Response string
 }
 
 type SshManager struct {
-	Remotes []*SshManagerRemote
+	Remotes    []*SshManagerRemote
 	PromptUser func(prompt string) PromptResponse
 }
-
 
 func (manager *SshManager) Initialize() {
 	// Get all remotesData from the database
@@ -33,7 +32,7 @@ func (manager *SshManager) Initialize() {
 
 func (manager *SshManager) AddRemote(name string, host string, port int, username string) (bool, error) {
 	remote := manager.NewSshManagerRemote(name, host, port, username)
-	id, err := InsertRemote(&remote.SshManagerRemoteData) 
+	id, err := InsertRemote(&remote.SshManagerRemoteData)
 	if err != nil {
 		return false, err
 	}
@@ -45,6 +44,7 @@ func (manager *SshManager) AddRemote(name string, host string, port int, usernam
 func (manager *SshManager) GetRemote(id string) (*SshManagerRemote, error) {
 	for _, remote := range manager.Remotes {
 		if remote.ID == id {
+			remote.Initialize()
 			return remote, nil
 		}
 	}
@@ -69,4 +69,3 @@ func (manager *SshManager) GetRemotes() []*SshManagerRemoteData {
 	}
 	return remotesData
 }
-
