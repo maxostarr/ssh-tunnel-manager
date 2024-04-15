@@ -60,6 +60,7 @@ func (manager *SshManager) promptKeyboardChallenge(user, instruction string, que
 
 func (manager *SshManager) promptPasswordChallenge() (string, error) {
 	response := manager.PromptUser("Password: ")
+	fmt.Println("Password response: " + response.Response)
 	if response.Status == PromptResponseStatusCancelled {
 		return "", fmt.Errorf("password prompt cancelled")
 	}
@@ -94,7 +95,13 @@ func (remote *SshManagerRemote) Connect() (bool, error) {
 	if err != nil {
 		return false, err
 	}
+	fmt.Println("Connected to " + connectionString)
 	remote.Client = client
+
+	for _, tunnel := range remote.Tunnels {
+		tunnel.Connect()
+	}
+
 	return true, nil
 }
 
