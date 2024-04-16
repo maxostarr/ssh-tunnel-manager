@@ -42,8 +42,8 @@ func (a *App) AddRemote(name string, host string, port int, username string) (bo
 	return a.manager.AddRemote(name, host, port, username)
 }
 
-func (a *App) RemoveRemote(id string) (bool, error) {
-	return a.manager.RemoveRemote(id)
+func (a *App) DeleteRemote(id string) (bool, error) {
+	return a.manager.DeleteRemote(id)
 }
 
 func (a *App) GetRemote(id string) (*ssh_manager.SshManagerRemote, error) {

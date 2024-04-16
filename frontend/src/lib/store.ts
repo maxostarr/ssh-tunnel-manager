@@ -5,6 +5,7 @@ import {
   GetRemote,
   GetRemotes,
   GetTunnels,
+  DeleteRemote,
 } from "../../wailsjs/go/main/App.js"
 
 export type RemoteData = Awaited<ReturnType<typeof GetRemotes>>[0]
@@ -46,4 +47,9 @@ export const addTunnel = async (tunnel: NewTunnel) => {
 
 export const selectRemote = (remote: RemoteData) => {
   loadRemoteDetails(remote.id)
+}
+
+export const deleteRemote = async (remoteId: string) => {
+  await DeleteRemote(remoteId)
+  return loadRemotes()
 }

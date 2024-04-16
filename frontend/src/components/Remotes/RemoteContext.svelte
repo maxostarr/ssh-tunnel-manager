@@ -1,6 +1,7 @@
 <script lang="ts">
   import { fade } from "svelte/transition"
   import type { ssh_manager } from "../../../wailsjs/go/models"
+  import { deleteRemote } from "../../lib/store"
 
   let clientX: number = 0
   let clientY: number = 0
@@ -21,6 +22,25 @@
     remote = null
   }
 
+  const handleRenameRemote: () => void = () => {
+    console.log("Rename remote")
+  }
+
+  const handleEditHost: () => void = () => {
+    console.log("Edit host")
+  }
+
+  const handleDeleteRemote: () => void = () => {
+    deleteRemote(remote.id)
+  }
+
+  // Close context menu on escape key
+  window.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+      closeContextMenu()
+    }
+  })
+
   // Close context menu on click outside
   window.addEventListener("click", closeContextMenu)
 </script>
@@ -34,10 +54,20 @@
   >
     <li class="menu-title">{remote.name}</li>
     <!-- svelte-ignore a11y-invalid-attribute -->
-    <li><a href="javascript:void(0)">Rename</a></li>
+    <li on:click={handleRenameRemote} on:keydown={handleRenameRemote}>
+      <a href="javascript:void(0)">Rename</a>
+    </li>
     <!-- svelte-ignore a11y-invalid-attribute -->
-    <li><a href="javascript:void(0)">Edit Host</a></li>
+    <li on:click={handleEditHost} on:keydown={handleEditHost}>
+      <a href="javascript:void(0)">Edit Host</a>
+    </li>
     <!-- svelte-ignore a11y-invalid-attribute -->
-    <li class="text-error"><a href="javascript:void(0)">Delete</a></li>
+    <li
+      on:click={handleDeleteRemote}
+      on:keydown={handleDeleteRemote}
+      class="text-error"
+    >
+      <a href="javascript:void(0)">Delete</a>
+    </li>
   </ul>
 {/if}

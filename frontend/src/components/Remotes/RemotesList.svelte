@@ -77,10 +77,6 @@
     display: flex;
     justify-content: space-between;
   }
-  svg {
-    fill: currentColor;
-  }
-
   .table tr:hover {
     background-color: oklch(var(--p));
     color: oklch(var(--pc));

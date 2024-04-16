@@ -14,6 +14,10 @@ export function Connect(arg1) {
   return window['go']['main']['App']['Connect'](arg1);
 }
 
+export function DeleteRemote(arg1) {
+  return window['go']['main']['App']['DeleteRemote'](arg1);
+}
+
 export function Disconnect(arg1) {
   return window['go']['main']['App']['Disconnect'](arg1);
 }
@@ -32,10 +36,6 @@ export function GetTunnels(arg1) {
 
 export function PromptUser(arg1) {
   return window['go']['main']['App']['PromptUser'](arg1);
-}
-
-export function RemoveRemote(arg1) {
-  return window['go']['main']['App']['RemoveRemote'](arg1);
 }
 
 export function RemoveTunnel(arg1, arg2) {

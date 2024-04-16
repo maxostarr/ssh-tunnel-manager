@@ -51,7 +51,7 @@ func (manager *SshManager) GetRemote(id string) (*SshManagerRemote, error) {
 	return nil, nil
 }
 
-func (manager *SshManager) RemoveRemote(id string) (bool, error) {
+func (manager *SshManager) DeleteRemote(id string) (bool, error) {
 	for i, remote := range manager.Remotes {
 		if remote.ID == id {
 			manager.Remotes = append(manager.Remotes[:i], manager.Remotes[i+1:]...)

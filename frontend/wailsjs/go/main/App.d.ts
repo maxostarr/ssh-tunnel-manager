@@ -8,6 +8,8 @@ export function AddTunnel(arg1:string,arg2:number,arg3:string,arg4:number):Promi
 
 export function Connect(arg1:string):Promise<boolean>;
 
+export function DeleteRemote(arg1:string):Promise<boolean>;
+
 export function Disconnect(arg1:string):Promise<void>;
 
 export function GetRemote(arg1:string):Promise<ssh_manager.SshManagerRemote>;
@@ -17,7 +19,5 @@ export function GetRemotes():Promise<Array<ssh_manager.SshManagerRemoteData>>;
 export function GetTunnels(arg1:string):Promise<Array<ssh_manager.SshManagerTunnel>>;
 
 export function PromptUser(arg1:string):Promise<ssh_manager.PromptResponse>;
-
-export function RemoveRemote(arg1:string):Promise<boolean>;
 
 export function RemoveTunnel(arg1:string,arg2:number):Promise<boolean>;
