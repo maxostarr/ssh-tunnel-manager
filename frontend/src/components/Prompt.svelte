@@ -5,9 +5,26 @@
   let reject
 
   let promptText = ""
+  let config = {}
+  let defaultConfig = {
+    type: "text",
+    placeholder: "Response",
+  } as const
 
-  export const prompt = (promptString: string) => {
+  type PromptConfig = {
+    type?: "text" | "password"
+    placeholder?: string
+  }
+
+  export const prompt = (
+    promptString: string,
+    inpConfig: PromptConfig = defaultConfig,
+  ) => {
     promptText = promptString
+    config = {
+      ...defaultConfig,
+      ...inpConfig,
+    }
     const promise = new Promise((res, rej) => {
       resolve = res
       reject = rej
@@ -37,7 +54,9 @@
 
   onMount(() => {
     EventsOn("prompt", async (promptString) => {
-      const res = await prompt(promptString).catch((err) => null)
+      const res = await prompt(promptString, {
+        type: "password",
+      }).catch((err) => null)
 
       if (res === null) {
         EventsEmit("prompt-response", "cancelled", "")

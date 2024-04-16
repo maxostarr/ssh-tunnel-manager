@@ -93,6 +93,14 @@ func InsertRemote(remoteData *SshManagerRemoteData) (string, error) {
 	return id, nil
 }
 
+func UpdateRemote(remoteData *SshManagerRemoteData) error {
+	_, err := connection.Exec(`UPDATE remotes SET name = ?, host = ?, port = ?, username = ? WHERE id = ?;`, remoteData.Name, remoteData.Host, remoteData.Port, remoteData.Username, remoteData.ID)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func InsertTunnel(tunnelData *SshManagerTunnelData) (string, error) {
 	id := GenerateUUID()
 	_, err := connection.Exec(`INSERT INTO tunnels (id, local_port, remote_host, remote_port, remote_id)

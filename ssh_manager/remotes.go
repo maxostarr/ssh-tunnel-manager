@@ -83,6 +83,10 @@ func (remote *SshManagerRemote) Save() (string, error) {
 	return InsertRemote(&remote.SshManagerRemoteData)
 }
 
+func (remote *SshManagerRemote) Update() error {
+	return UpdateRemote(&remote.SshManagerRemoteData)
+}
+
 func (remote *SshManagerRemote) Connect() (bool, error) {
 	config := &ssh.ClientConfig{
 		User:            remote.Username,

@@ -1,11 +1,13 @@
 <script lang="ts">
   import { fade } from "svelte/transition"
   import type { ssh_manager } from "../../../wailsjs/go/models"
-  import { deleteRemote } from "../../lib/store"
+  import { deleteRemote, updateRemote } from "../../lib/store"
+  import Prompt from "../Prompt.svelte"
 
   let clientX: number = 0
   let clientY: number = 0
   let remote: ssh_manager.SshManagerRemoteData = {} as any
+  let prompt: (promptString: string, config: PromptConfig) => Promise<string>
 
   export const openContextMenu: (
     inpRemote: ssh_manager.SshManagerRemoteData,
@@ -22,12 +24,35 @@
     remote = null
   }
 
-  const handleRenameRemote: () => void = () => {
+  const handleRenameRemote: () => Promise<void> = async () => {
     console.log("Rename remote")
+    const newName = await prompt("Enter new name for remote", {
+      placeholder: remote.name,
+    })
+    updateRemote({
+      ...remote,
+      name: newName,
+    })
   }
 
-  const handleEditHost: () => void = () => {
+  const handleEditHost: () => Promise<void> = async () => {
     console.log("Edit host")
+
+    const newHost = await prompt("Enter new host for remote")
+    updateRemote({
+      ...remote,
+      host: newHost,
+    })
+  }
+
+  const handleEditUser: () => Promise<void> = async () => {
+    console.log("Edit user")
+
+    const newUser = await prompt("Enter new user for remote")
+    updateRemote({
+      ...remote,
+      username: newUser,
+    })
   }
 
   const handleDeleteRemote: () => void = () => {
@@ -45,6 +70,8 @@
   window.addEventListener("click", closeContextMenu)
 </script>
 
+<Prompt bind:prompt />
+
 {#if clientX && clientY}
   <ul
     class="menu bg-base-200 rounded-box z-10 transition-all"
@@ -61,6 +88,12 @@
     <li on:click={handleEditHost} on:keydown={handleEditHost}>
       <a href="javascript:void(0)">Edit Host</a>
     </li>
+
+    <!-- svelte-ignore a11y-invalid-attribute -->
+    <li on:click={handleEditUser} on:keydown={handleEditUser}>
+      <a href="javascript:void(0)">Edit User</a>
+    </li>
+
     <!-- svelte-ignore a11y-invalid-attribute -->
     <li
       on:click={handleDeleteRemote}

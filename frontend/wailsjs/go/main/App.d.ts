@@ -21,3 +21,5 @@ export function GetTunnels(arg1:string):Promise<Array<ssh_manager.SshManagerTunn
 export function PromptUser(arg1:string):Promise<ssh_manager.PromptResponse>;
 
 export function RemoveTunnel(arg1:string,arg2:number):Promise<boolean>;
+
+export function UpdateRemote(arg1:string,arg2:string,arg3:string,arg4:number,arg5:string):Promise<boolean>;

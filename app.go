@@ -42,6 +42,10 @@ func (a *App) AddRemote(name string, host string, port int, username string) (bo
 	return a.manager.AddRemote(name, host, port, username)
 }
 
+func (a *App) UpdateRemote(id string, name string, host string, port int, username string) (bool, error) {
+	return a.manager.UpdateRemote(id, name, host, port, username)
+}
+
 func (a *App) DeleteRemote(id string) (bool, error) {
 	return a.manager.DeleteRemote(id)
 }

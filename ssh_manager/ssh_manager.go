@@ -51,6 +51,20 @@ func (manager *SshManager) GetRemote(id string) (*SshManagerRemote, error) {
 	return nil, nil
 }
 
+func (manager *SshManager) UpdateRemote(id string, name string, host string, port int, username string) (bool, error) {
+	for _, remote := range manager.Remotes {
+		if remote.ID == id {
+			remote.Name = name
+			remote.Host = host
+			remote.Port = port
+			remote.Username = username
+			remote.Update()
+			return true, nil
+		}
+	}
+	return false, nil
+}
+
 func (manager *SshManager) DeleteRemote(id string) (bool, error) {
 	for i, remote := range manager.Remotes {
 		if remote.ID == id {
