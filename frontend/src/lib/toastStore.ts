@@ -37,6 +37,5 @@ export const addToast = (toast: Omit<Toast, "id">) => {
 }
 
 export const dismissToast = (id) => {
-  console.log("🚀 ~ dismissToast ~ id:", id)
   toasts.update((all) => all.filter((t) => t.id !== id))
 }
