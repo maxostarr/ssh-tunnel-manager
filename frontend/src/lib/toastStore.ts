@@ -1,4 +1,4 @@
-import { writable } from "svelte/store"
+import { get, writable } from "svelte/store"
 
 export interface Toast {
   id: number
@@ -10,10 +10,19 @@ export interface Toast {
 
 export const toasts = writable([])
 
+const getId = () => {
+  let id = Math.floor(Math.random() * 10000)
+  const existingToasts = get(toasts)
+  while (existingToasts.find((t) => t.id === id)) {
+    id = Math.floor(Math.random() * 10000)
+  }
+  return id
+}
+
 export const addToast = (toast: Omit<Toast, "id">) => {
   // Create a unique ID so we can easily find/remove it
   // if it is dismissible/has a timeout.
-  const id = Math.floor(Math.random() * 10000)
+  const id = getId()
 
   // Setup some sensible defaults for a toast.
   const defaults = {
@@ -24,14 +33,12 @@ export const addToast = (toast: Omit<Toast, "id">) => {
   }
 
   const merged = { ...defaults, ...toast }
-  console.log("🚀 ~ addToast ~ merged:", merged)
 
   // Push the toast to the top of the list of toasts
   toasts.update((all) => [merged, ...all])
 
   // If toast is dismissible, dismiss it after "timeout" amount of time.
   if (merged.timeout) {
-    console.log("🚀 ~ addToast ~ toast.timeout:", merged.timeout)
     setTimeout(() => dismissToast(id), merged.timeout)
   }
 }
