@@ -1,6 +1,8 @@
-package main
+package utils
 
 import (
+	"context"
+
 	"github.com/google/uuid"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
@@ -14,19 +16,35 @@ type EventData struct {
 	Data interface{}
 }
 
+type EventManager interface {
+	Emit(eventName string, data ...interface{}) (string, error)
+	EmitAndWait(eventName string, data ...interface{}) (interface{}, error)
+	Prompt(options PromptOptions) (PromptResponse, error)
+}
+
+type EventManagerImpl struct {
+	ctx context.Context
+}
+
+func NewEventManager(ctx context.Context) EventManager {
+	return EventManagerImpl{
+		ctx: ctx,
+	}
+}
+
 // Emit emits an event with the given name and data, returning a unique event ID.
-func (a *App) Emit(eventName string, data ...interface{}) (string, error) {
+func (m EventManagerImpl) Emit(eventName string, data ...interface{}) (string, error) {
 	eventData := EventData{
 		ID:   getId(),
 		Data: data,
 	}
-	runtime.EventsEmit(a.ctx, eventName, eventData)
+	runtime.EventsEmit(m.ctx, eventName, eventData)
 	return eventData.ID, nil
 }
 
 // EmitAndWait emits an event and waits for a response, returning the response data.
-func (a *App) EmitAndWait(eventName string, data ...interface{}) (interface{}, error) {
-	id, err := a.Emit(eventName, data)
+func (m EventManagerImpl) EmitAndWait(eventName string, data ...interface{}) (interface{}, error) {
+	id, err := m.Emit(eventName, data)
 	if err != nil {
 		return nil, err
 	}
@@ -34,7 +52,7 @@ func (a *App) EmitAndWait(eventName string, data ...interface{}) (interface{}, e
 	responseChannel := make(chan interface{})
 	// It's assumed runtime.EventsOn handles registration in a way that doesn't block or can be done in a separate goroutine if necessary.
 	// Error handling for EventsOn is omitted for brevity but should be considered.
-	unregister := runtime.EventsOn(a.ctx, eventName, func(data ...interface{}) {
+	unregister := runtime.EventsOn(m.ctx, eventName, func(data ...interface{}) {
 		// Type assertion with check
 		eventData, ok := data[0].(EventData)
 		if !ok {

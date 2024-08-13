@@ -1,6 +1,5 @@
 export namespace ssh_manager {
 	
-	
 	export class SshManagerTunnel {
 	    id: string;
 	    local_port: number;

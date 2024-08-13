@@ -2,6 +2,7 @@ package ssh_manager
 
 import (
 	"fmt"
+	"ssh-tunnel-manager/utils"
 	"strconv"
 
 	"golang.org/x/crypto/ssh"
@@ -46,25 +47,59 @@ func (manager *SshManager) NewSshManagerRemoteFromData(data SshManagerRemoteData
 
 func (manager *SshManager) promptKeyboardChallenge(user, instruction string, questions []string, echos []bool) (answers []string, err error) {
 	fmt.Println(instruction)
-	answers = make([]string, len(questions))
-	for i := range questions {
-		answer := manager.PromptUser(questions[i])
-		if answer.Status == PromptResponseStatusCancelled {
-			return nil, fmt.Errorf("keyboard challenge cancelled")
-		}
-		answers[i] = answer.Response
+	// answers = make([]string, len(questions))
+	// for i := range questions {
+	// 	answer := manager.PromptUser(questions[i])
+	// 	if answer.Status == PromptResponseStatusCancelled {
+	// 		return nil, fmt.Errorf("keyboard challenge cancelled")
+	// 	}
+	// 	answers[i] = answer.Response
+	// }
+
+	inputs := []utils.PromptInput{}
+
+	for _, question := range questions {
+		inputs = append(inputs, utils.PromptInput{
+			Label: question,
+			Type:  utils.PromptInputTypeText,
+		})
 	}
+
+	result, err := manager.PromptUser(utils.PromptOptions{
+		Inputs: inputs,
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	answers = result.Response
 
 	return answers, nil
 }
 
 func (manager *SshManager) promptPasswordChallenge() (string, error) {
-	response := manager.PromptUser("Password: ")
-	fmt.Println("Password response: " + response.Response)
-	if response.Status == PromptResponseStatusCancelled {
-		return "", fmt.Errorf("password prompt cancelled")
+	// response := manager.PromptUser("Password: ")
+	// fmt.Println("Password response: " + response.Response)
+	// if response.Status == PromptResponseStatusCancelled {
+	// 	return "", fmt.Errorf("password prompt cancelled")
+	// }
+	// return response.Response, nil
+
+	result, err := manager.PromptUser(utils.PromptOptions{
+		Inputs: []utils.PromptInput{
+			{
+				Label: "Password",
+				Type:  utils.PromptInputTypePassword,
+			},
+		},
+	})
+
+	if err != nil {
+		return "", err
 	}
-	return response.Response, nil
+
+	return result.Response[0], nil
 }
 
 func (remote *SshManagerRemote) Initialize() {

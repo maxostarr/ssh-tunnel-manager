@@ -56,6 +56,6 @@ export const prompt = (
   })
 }
 
-EventsOn("prompt", async (message: string) => {
-  await prompt(message)
+EventsOn("prompt", async (message: string, promptData: PromptOptions) => {
+  await prompt(message, promptData)
 })

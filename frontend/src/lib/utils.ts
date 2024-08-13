@@ -1,4 +1,4 @@
-import { Connect } from "../../wailsjs/go/main/App"
+import { Connect } from "../../wailsjs/go/app/App"
 import { addToast } from "./toastStore"
 
 export const openRemote = async (id: string) => {

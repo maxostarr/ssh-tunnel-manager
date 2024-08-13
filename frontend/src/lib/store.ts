@@ -7,7 +7,7 @@ import {
   GetTunnels,
   DeleteRemote,
   UpdateRemote,
-} from "../../wailsjs/go/main/App.js"
+} from "../../wailsjs/go/app/App.js"
 
 export type RemoteData = Awaited<ReturnType<typeof GetRemotes>>[0]
 export type RemoteFull = Awaited<ReturnType<typeof GetRemote>>

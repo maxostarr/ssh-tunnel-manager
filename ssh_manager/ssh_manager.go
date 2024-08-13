@@ -1,20 +1,22 @@
 package ssh_manager
 
-type PromptResponseStatus string
+import "ssh-tunnel-manager/utils"
 
-const (
-	PromptResponseStatusSuccess   PromptResponseStatus = "success"
-	PromptResponseStatusCancelled PromptResponseStatus = "cancelled"
-)
+// type PromptResponseStatus string
 
-type PromptResponse struct {
-	Status   PromptResponseStatus
-	Response string
-}
+// const (
+// 	PromptResponseStatusSuccess   PromptResponseStatus = "success"
+// 	PromptResponseStatusCancelled PromptResponseStatus = "cancelled"
+// )
+
+// type PromptResponse struct {
+// 	Status   PromptResponseStatus
+// 	Response string
+// }
 
 type SshManager struct {
 	Remotes    []*SshManagerRemote
-	PromptUser func(prompt string) PromptResponse
+	PromptUser func(options utils.PromptOptions) (utils.PromptResponse, error)
 }
 
 func (manager *SshManager) Initialize() {
