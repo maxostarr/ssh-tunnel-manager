@@ -58,9 +58,10 @@ func (manager *SshManager) promptKeyboardChallenge(user, instruction string, que
 
 	inputs := []utils.PromptInput{}
 
-	for _, question := range questions {
+	for i, question := range questions {
 		inputs = append(inputs, utils.PromptInput{
 			Label: question,
+			Key:   strconv.Itoa(i),
 			Type:  utils.PromptInputTypeText,
 		})
 	}
@@ -73,7 +74,13 @@ func (manager *SshManager) promptKeyboardChallenge(user, instruction string, que
 		return nil, err
 	}
 
-	answers = result.Response
+	resultArray := []string{}
+
+	for _, response := range result.Response {
+		resultArray = append(resultArray, response)
+	}
+
+	answers = resultArray
 
 	return answers, nil
 }
@@ -90,6 +97,7 @@ func (manager *SshManager) promptPasswordChallenge() (string, error) {
 		Inputs: []utils.PromptInput{
 			{
 				Label: "Password",
+				Key:   "password",
 				Type:  utils.PromptInputTypePassword,
 			},
 		},
@@ -99,7 +107,7 @@ func (manager *SshManager) promptPasswordChallenge() (string, error) {
 		return "", err
 	}
 
-	return result.Response[0], nil
+	return result.Response["password"], nil
 }
 
 func (remote *SshManagerRemote) Initialize() {

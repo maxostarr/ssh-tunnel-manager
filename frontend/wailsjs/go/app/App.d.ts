@@ -20,6 +20,8 @@ export function GetTunnels(arg1:string):Promise<Array<ssh_manager.SshManagerTunn
 
 export function RemoveTunnel(arg1:string,arg2:number):Promise<boolean>;
 
+export function TestPrompt():Promise<void>;
+
 export function UpdateRemote(arg1:string,arg2:string,arg3:string,arg4:number,arg5:string):Promise<boolean>;
 
 export function WithEvents():Promise<void>;

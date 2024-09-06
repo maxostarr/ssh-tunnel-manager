@@ -38,6 +38,10 @@ export function RemoveTunnel(arg1, arg2) {
   return window['go']['app']['App']['RemoveTunnel'](arg1, arg2);
 }
 
+export function TestPrompt() {
+  return window['go']['app']['App']['TestPrompt']();
+}
+
 export function UpdateRemote(arg1, arg2, arg3, arg4, arg5) {
   return window['go']['app']['App']['UpdateRemote'](arg1, arg2, arg3, arg4, arg5);
 }

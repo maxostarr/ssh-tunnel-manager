@@ -27,6 +27,9 @@
   const handleRenameRemote: () => Promise<void> = async () => {
     console.log("Rename remote")
     const newName = await prompt({
+      type: "prompt",
+      cancelText: "Cancel",
+      confirmText: "Rename",
       label: "Enter new name for remote",
       inputs: [
         {
@@ -78,7 +81,7 @@
   window.addEventListener("click", closeContextMenu)
 </script>
 
-<Prompt bind:prompt />
+<!-- <Prompt bind:prompt /> -->
 
 {#if clientX && clientY}
   <ul

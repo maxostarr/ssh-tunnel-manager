@@ -5,10 +5,25 @@
   import Toasts from "./components/Toast/Toasts.svelte"
   import RemoteDetails from "./components/Remotes/RemoteDetails.svelte"
   import { selectedRemoteStore } from "./lib/store"
+
+  import { TestPrompt } from "../wailsjs/go/app/App.js"
+
+  const testPrompt = async () => {
+    const res = await TestPrompt().catch((err) => null)
+
+    if (res === null) {
+      console.log("Prompt cancelled")
+      return
+    }
+
+    console.log("Prompt submitted", res)
+  }
 </script>
 
 <Prompt />
 <Toasts />
+
+<button on:click={testPrompt}>Test Prompt</button>
 
 <main class="h-full grid">
   <RemotesList />

@@ -1,27 +1,20 @@
 <script lang="ts">
-  import { onMount } from "svelte"
-  import { EventsEmit, EventsOn, EventsOff } from "../../wailsjs/runtime"
-  import {
-    DEFAULT_PROMPT_OPTIONS,
-    PromptOptions,
-    prompts,
-  } from "../lib/promptStore"
+  import type { ConfirmData, PromptData } from "../lib/promptStore"
+  import { prompts } from "../lib/promptStore"
   let resolve
   let reject
 
   let promptText = ""
-  let config = {}
+  let config: PromptData | ConfirmData = {} as any
 
-  export const prompt = (inpConfig: PromptOptions = DEFAULT_PROMPT_OPTIONS) => {
+  export const prompt = (inpConfig: PromptData | ConfirmData) => {
     promptText = inpConfig.label
     config = inpConfig
+    console.log("🚀 ~ prompt ~ config:", config)
 
-    const promise = new Promise((res, rej) => {
-      resolve = res
-      reject = rej
-    })
+    resolve = inpConfig.resolve
+    reject = inpConfig.reject
     ;(document.getElementById("prompt") as HTMLDialogElement).showModal()
-    return promise
   }
 
   const close = () => {
@@ -34,7 +27,7 @@
     const formData = new FormData(form)
     const data = Object.fromEntries(formData.entries())
 
-    resolve(data.response)
+    resolve(data)
     close()
   }
 
@@ -49,7 +42,7 @@
     }
 
     const inpConfig = value[0]
-    await prompt(inpConfig)
+    prompt(inpConfig)
   })
 
   // onMount(() => {
@@ -76,22 +69,30 @@
     <div class="divider"></div>
     <form class="form-control flex gap-2" on:submit|preventDefault={submit}>
       <p>{promptText}</p>
-      <label class="input input-bordered flex items-center grow">
-        <input
-          type="password"
-          name="response"
-          placeholder="Response"
-          required
-        />
-      </label>
+      {#if config.type === "prompt"}
+        {#each config.inputs as input, i}
+          <label class="input input-bordered flex items-center grow gap-2">
+            {#if input.label}
+              {input.label}
+            {/if}
+            <input
+              type={input.type}
+              class="grow"
+              name={input.key}
+              required
+              autofocus={i === 0}
+            />
+          </label>
+        {/each}
+      {/if}
       <div class="join">
         <button class="btn join-item flex-1 btn-primary" type="submit"
-          >Submit</button
+          >{config.confirmText}</button
         >
         <button
           class="btn join-item flex-1 btn-primary btn-outline"
           type="button"
-          on:click={() => cancel()}>Cancel</button
+          on:click={() => cancel()}>{config.cancelText}</button
         >
       </div>
     </form>

@@ -13,21 +13,19 @@ const (
 
 type PromptInput struct {
 	Label string
-	// Type is only allowed to be 'text' or 'password'
-	Type PromptInputType
+	Key   string
+	Type  PromptInputType
 }
 
 type PromptOptions struct {
+	Type        string
 	ConfirmText string
 	CancelText  string
 	Label       string
 	Inputs      []PromptInput
 }
 
-type PromptResponse struct {
-	Status   string
-	Response []string
-}
+// type PromptResponse []string
 
 // Default empty prompt response
 var DefaultPromptResponse = PromptResponse{
@@ -35,20 +33,27 @@ var DefaultPromptResponse = PromptResponse{
 	Response: nil,
 }
 
+func NewPromptOptions(label string, confirmText string, cancelText string, inputs []PromptInput) PromptOptions {
+	return PromptOptions{
+		Type:        "prompt",
+		Label:       label,
+		ConfirmText: confirmText,
+		CancelText:  cancelText,
+		Inputs:      inputs,
+	}
+}
+
 func (m EventManagerImpl) Prompt(options PromptOptions) (PromptResponse, error) {
+
 	data, err := m.EmitAndWait("prompt", options)
+	fmt.Println("Prompt response data: ", data)
 	if err != nil {
 		return DefaultPromptResponse, err
 	}
 
-	responseData, ok := data.([]interface{})
+	response, ok := data.()
 	if !ok {
 		return DefaultPromptResponse, fmt.Errorf("invalid response data")
-	}
-
-	response := PromptResponse{
-		Status:   responseData[0].(string),
-		Response: responseData[1].([]string),
 	}
 
 	return response, nil
