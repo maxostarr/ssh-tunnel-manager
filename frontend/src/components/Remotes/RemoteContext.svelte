@@ -3,11 +3,11 @@
   import type { ssh_manager } from "../../../wailsjs/go/models"
   import { deleteRemote, updateRemote } from "../../lib/store"
   import Prompt from "../Prompt.svelte"
+  import { prompt } from "../../lib/promptStore"
 
   let clientX: number = 0
   let clientY: number = 0
   let remote: ssh_manager.SshManagerRemoteData = {} as any
-  let prompt: (promptString: string, config: PromptConfig) => Promise<string>
 
   export const openContextMenu: (
     inpRemote: ssh_manager.SshManagerRemoteData,
@@ -26,8 +26,16 @@
 
   const handleRenameRemote: () => Promise<void> = async () => {
     console.log("Rename remote")
-    const newName = await prompt("Enter new name for remote", {
-      placeholder: remote.name,
+    const newName = await prompt({
+      label: "Enter new name for remote",
+      inputs: [
+        {
+          type: "text",
+          label: "response",
+          // placeholder: "New name",
+          // required: true,
+        },
+      ],
     })
     updateRemote({
       ...remote,

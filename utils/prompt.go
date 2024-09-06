@@ -20,6 +20,7 @@ type PromptInput struct {
 type PromptOptions struct {
 	ConfirmText string
 	CancelText  string
+	Label       string
 	Inputs      []PromptInput
 }
 

@@ -1,30 +1,21 @@
 <script lang="ts">
   import { onMount } from "svelte"
   import { EventsEmit, EventsOn, EventsOff } from "../../wailsjs/runtime"
+  import {
+    DEFAULT_PROMPT_OPTIONS,
+    PromptOptions,
+    prompts,
+  } from "../lib/promptStore"
   let resolve
   let reject
 
   let promptText = ""
   let config = {}
-  let defaultConfig = {
-    type: "text",
-    placeholder: "Response",
-  } as const
 
-  type PromptConfig = {
-    type?: "text" | "password"
-    placeholder?: string
-  }
+  export const prompt = (inpConfig: PromptOptions = DEFAULT_PROMPT_OPTIONS) => {
+    promptText = inpConfig.label
+    config = inpConfig
 
-  export const prompt = (
-    promptString: string,
-    inpConfig: PromptConfig = defaultConfig,
-  ) => {
-    promptText = promptString
-    config = {
-      ...defaultConfig,
-      ...inpConfig,
-    }
     const promise = new Promise((res, rej) => {
       resolve = res
       reject = rej
@@ -52,22 +43,31 @@
     close()
   }
 
-  onMount(() => {
-    EventsOn("prompt", async (promptString) => {
-      const res = await prompt(promptString, {
-        type: "password",
-      }).catch((err) => null)
+  prompts.subscribe(async (value) => {
+    if (value === null || value.length === 0) {
+      return
+    }
 
-      if (res === null) {
-        EventsEmit("prompt-response", "cancelled", "")
-        return
-      }
-
-      EventsEmit("prompt-response", "submitted", res)
-    })
-
-    return () => EventsOff("prompt")
+    const inpConfig = value[0]
+    await prompt(inpConfig)
   })
+
+  // onMount(() => {
+  //   EventsOn("prompt", async (promptString) => {
+  //     const res = await prompt(promptString, {
+  //       type: "password",
+  //     }).catch((err) => null)
+
+  //     if (res === null) {
+  //       EventsEmit("prompt-response", "cancelled", "")
+  //       return
+  //     }
+
+  //     EventsEmit("prompt-response", "submitted", res)
+  //   })
+
+  //   return () => EventsOff("prompt")
+  // })
 </script>
 
 <dialog class="modal card" id="prompt">
