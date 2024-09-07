@@ -9,7 +9,7 @@
 
 <NewTunnel bind:show={showNewTunnel} />
 
-<div>
+<div class="flex-1">
   <button
     class="btn btn-primary"
     on:click={() => openRemote($selectedRemoteStore.id)}>Connect</button

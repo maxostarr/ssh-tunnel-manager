@@ -34,7 +34,8 @@
       inputs: [
         {
           type: "text",
-          label: "response",
+          label: "New name",
+          key: "newName",
           // placeholder: "New name",
           // required: true,
         },
@@ -42,27 +43,55 @@
     })
     updateRemote({
       ...remote,
-      name: newName,
+      name: newName.newName,
     })
   }
 
   const handleEditHost: () => Promise<void> = async () => {
     console.log("Edit host")
 
-    const newHost = await prompt("Enter new host for remote")
+    const newHost = await prompt({
+      type: "prompt",
+      cancelText: "Cancel",
+      confirmText: "Edit",
+      label: "Enter new host for remote",
+      inputs: [
+        {
+          type: "text",
+          label: "New host",
+          key: "newHost",
+          // placeholder: "New host",
+          // required: true,
+        },
+      ],
+    })
     updateRemote({
       ...remote,
-      host: newHost,
+      host: newHost.newHost,
     })
   }
 
   const handleEditUser: () => Promise<void> = async () => {
     console.log("Edit user")
 
-    const newUser = await prompt("Enter new user for remote")
+    const newUser = await prompt({
+      type: "prompt",
+      cancelText: "Cancel",
+      confirmText: "Edit",
+      label: "Enter new user for remote",
+      inputs: [
+        {
+          type: "text",
+          label: "New user",
+          key: "newUser",
+          // placeholder: "New user",
+          // required: true,
+        },
+      ],
+    })
     updateRemote({
       ...remote,
-      username: newUser,
+      username: newUser.newUser,
     })
   }
 

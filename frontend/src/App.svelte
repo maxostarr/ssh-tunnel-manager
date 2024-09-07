@@ -10,7 +10,7 @@
 <Prompt />
 <Toasts />
 
-<main class="h-full grid">
+<main class="h-full flex">
   <RemotesList />
   {#if $selectedRemoteStore.id}
     <RemoteDetails />

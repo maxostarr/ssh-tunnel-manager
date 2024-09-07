@@ -1,13 +1,8 @@
 import { writable } from "svelte/store"
 import { EventsEmit, EventsOn, EventsOff } from "../../wailsjs/runtime"
 
-export const prompts = writable<Array<PromptData | ConfirmData>>([])
+export const prompts = writable<Array<PromptData<any> | ConfirmData>>([])
 
-export interface Prompt {
-  id: number
-  message: string
-  options: PromptOptions
-}
 
 type ConfirmOptions = {
   type: "confirm"
@@ -17,34 +12,36 @@ type ConfirmOptions = {
   cancelText: string
 }
 
-type PromptOptions = Omit<ConfirmOptions, "type"> & {
+type PromptOptions<T extends string> = Omit<ConfirmOptions, "type"> & {
   type: "prompt"
-  inputs: Array<{
+  inputs: Readonly<Array<{
     label: string
-    key: string
+    key: T
     type: "text" | "password"
-  }>
+  }>>
 }
 
 // export type PromptOptions = ConfirmOptions | NewType
-export type UIPromptOptions = Omit<PromptOptions, "id">
+export type UIPromptOptions<T extends string> = Omit<PromptOptions<T>, "id">
 export type UIConfirmOptions = Omit<ConfirmOptions, "id">
 
 export type CapitalizeKeys<T> = {
   [K in keyof T as Capitalize<string & K>]: T[K]
 }
 
-export type BackendPromptOptions = {
+export type BackendPromptOptions<T extends string> = {
   ID: string
   Data: CapitalizeKeys<
-    Omit<UIPromptOptions, "inputs"> & {
-      inputs: Array<CapitalizeKeys<PromptOptions["inputs"][0]>>
+    Omit<UIPromptOptions<T>, "inputs"> & {
+      inputs: Array<CapitalizeKeys<PromptOptions<T>["inputs"][0]>>
     }
   >
 }
 
-export type PromptData = PromptOptions & {
-  resolve: (result: string[]) => void
+export type PromptData<T extends string> = PromptOptions<T> & {
+  resolve: (result: {
+    [key in T]: string
+  }) => void
   reject: (reason: any) => void
 }
 
@@ -70,7 +67,6 @@ const handleConfirm = async (options: ConfirmOptions) => {
   }).finally(() => {
     prompts.update((all) => all.filter((p) => p.id !== options.id))
   })
-  console.log("🚀 ~ result ~ result:", result)
 
   return result
 }
@@ -80,9 +76,11 @@ export const confirm = (options: UIConfirmOptions) => {
   return handleConfirm({ ...options, id })
 }
 
-const handlePrompt = async (options: PromptOptions) => {
-  const result = await new Promise<string[]>((resolve, reject) => {
-    const promptData = {
+const handlePrompt = async <T extends string>(options: PromptOptions<T>) => {
+  const result = await new Promise<{
+    [key in T]: string
+  }>((resolve, reject) => {
+    const promptData: PromptData<T> = {
       ...options,
       resolve,
       reject,
@@ -101,14 +99,14 @@ const handlePrompt = async (options: PromptOptions) => {
   return result
 }
 
-export const prompt = (options: UIPromptOptions) => {
+export const prompt = <T extends string>(options: UIPromptOptions<T>) => {
   const id = Math.random().toString(36).substr(2, 9)
   return handlePrompt({ ...options, id })
 }
 
-const backendToPromptOptions = (
-  options: BackendPromptOptions,
-): PromptOptions => {
+const backendToPromptOptions = <T extends string>(
+  options: BackendPromptOptions<T>,
+): PromptOptions<T> => {
   return {
     id: options.ID,
     type: options.Data.Type,
@@ -125,10 +123,7 @@ const backendToPromptOptions = (
   }
 }
 
-EventsOn("prompt", async (promptData: BackendPromptOptions) => {
-  console.log("🚀 ~ EventsOn ~ promptData:", promptData)
+EventsOn("prompt", async <T extends string>(promptData: BackendPromptOptions<T>) => {
   const result = await handlePrompt(backendToPromptOptions(promptData))
-  console.log("🚀 ~ EventsOn ~ result:", result)
-
   EventsEmit("prompt" + promptData.ID, "success", result)
 })

@@ -31,7 +31,7 @@
 
 <div class="card-bordered w-96 bg-base-100 shadow-xl h-full">
   <NewRemote bind:show={showNewRemote} />
-  <!-- <RemoteContext bind:openContextMenu /> -->
+  <RemoteContext bind:openContextMenu />
   <div class="card-body">
     <h2 class="card-title">
       Remotes
