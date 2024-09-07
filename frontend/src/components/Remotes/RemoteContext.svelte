@@ -26,7 +26,7 @@
 
   const handleRenameRemote: () => Promise<void> = async () => {
     console.log("Rename remote")
-    const newName = await prompt({
+    const { newName } = await prompt({
       type: "prompt",
       cancelText: "Cancel",
       confirmText: "Rename",
@@ -36,21 +36,19 @@
           type: "text",
           label: "New name",
           key: "newName",
-          // placeholder: "New name",
-          // required: true,
         },
       ],
     })
     updateRemote({
       ...remote,
-      name: newName.newName,
+      name: newName,
     })
   }
 
   const handleEditHost: () => Promise<void> = async () => {
     console.log("Edit host")
 
-    const newHost = await prompt({
+    const { newHost } = await prompt({
       type: "prompt",
       cancelText: "Cancel",
       confirmText: "Edit",
@@ -67,14 +65,14 @@
     })
     updateRemote({
       ...remote,
-      host: newHost.newHost,
+      host: newHost,
     })
   }
 
   const handleEditUser: () => Promise<void> = async () => {
     console.log("Edit user")
 
-    const newUser = await prompt({
+    const { newUser } = await prompt({
       type: "prompt",
       cancelText: "Cancel",
       confirmText: "Edit",
@@ -91,7 +89,7 @@
     })
     updateRemote({
       ...remote,
-      username: newUser.newUser,
+      username: newUser,
     })
   }
 
