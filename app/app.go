@@ -100,40 +100,24 @@ func (a *App) Disconnect(remoteName string) {
 	remote.Disconnect()
 }
 
-func (a *App) TestPrompt() {
-	// promptOptions := utils.PromptOptions{
-	// 	Label:       "Test prompt",
-	// 	ConfirmText: "Confirm",
-	// 	CancelText:  "Cancel",
-	// 	Inputs: []utils.PromptInput{
-	// 		{
-	// 			Label: "Name",
-	// 			Type:  utils.PromptInputTypeText,
-	// 		},
-	// 		{
-	// 			Label: "Password",
-	// 			Type:  utils.PromptInputTypePassword,
-	// 		},
-	// 	},
-	// }
+// func (a *App) TestPrompt() {
+// 	promptOptions := utils.NewPromptOptions("Test prompt", "Confirm", "Cancel", []utils.PromptInput{
+// 		{
+// 			Label: "Name",
+// 			Key:   "name",
+// 			Type:  utils.PromptInputTypeText,
+// 		},
+// 		{
+// 			Label: "Password",
+// 			Key:   "password",
+// 			Type:  utils.PromptInputTypePassword,
+// 		},
+// 	})
 
-	promptOptions := utils.NewPromptOptions("Test prompt", "Confirm", "Cancel", []utils.PromptInput{
-		{
-			Label: "Name",
-			Key:   "name",
-			Type:  utils.PromptInputTypeText,
-		},
-		{
-			Label: "Password",
-			Key:   "password",
-			Type:  utils.PromptInputTypePassword,
-		},
-	})
-
-	response, err := a.manager.PromptUser(promptOptions)
-	if err != nil {
-		fmt.Println("Error getting prompt response")
-		return
-	}
-	fmt.Println("Prompt response: ", response)
-}
+// 	response, err := a.manager.PromptUser(promptOptions)
+// 	if err != nil {
+// 		fmt.Println("Error getting prompt response", err)
+// 		return
+// 	}
+// 	fmt.Println("Prompt response: ", response.Response["name"])
+// }

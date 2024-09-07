@@ -25,7 +25,10 @@ type PromptOptions struct {
 	Inputs      []PromptInput
 }
 
-// type PromptResponse []string
+type PromptResponse struct {
+	Status   string
+	Response map[string]string
+}
 
 // Default empty prompt response
 var DefaultPromptResponse = PromptResponse{
@@ -44,17 +47,30 @@ func NewPromptOptions(label string, confirmText string, cancelText string, input
 }
 
 func (m EventManagerImpl) Prompt(options PromptOptions) (PromptResponse, error) {
-
 	data, err := m.EmitAndWait("prompt", options)
-	fmt.Println("Prompt response data: ", data)
 	if err != nil {
 		return DefaultPromptResponse, err
 	}
 
-	response, ok := data.()
+	status, ok := data[0].(string)
+	if !ok {
+		return DefaultPromptResponse, fmt.Errorf("invalid response status")
+	}
+
+	mapData, ok := data[1].(map[string]interface{})
 	if !ok {
 		return DefaultPromptResponse, fmt.Errorf("invalid response data")
 	}
 
-	return response, nil
+	response := make(map[string]string)
+
+	for key, value := range mapData {
+		response[key] = fmt.Sprintf("%v", value)
+	}
+
+	return PromptResponse{
+		Status:   status,
+		Response: response,
+	}, nil
+
 }

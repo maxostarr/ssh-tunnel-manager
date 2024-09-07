@@ -19,7 +19,7 @@ type EventData struct {
 
 type EventManager interface {
 	Emit(eventName string, data interface{}) (string, error)
-	EmitAndWait(eventName string, data interface{}) (interface{}, error)
+	EmitAndWait(eventName string, data interface{}) ([]interface{}, error)
 	Prompt(options PromptOptions) (PromptResponse, error)
 }
 
@@ -44,13 +44,13 @@ func (m EventManagerImpl) Emit(eventName string, data interface{}) (string, erro
 }
 
 // EmitAndWait emits an event and waits for a response, returning the response data.
-func (m EventManagerImpl) EmitAndWait(eventName string, data interface{}) (interface{}, error) {
+func (m EventManagerImpl) EmitAndWait(eventName string, data interface{}) ([]interface{}, error) {
 	id, err := m.Emit(eventName, data)
 	if err != nil {
 		return nil, err
 	}
 
-	responseChannel := make(chan interface{})
+	responseChannel := make(chan []interface{})
 	responseEventName := eventName + id
 	fmt.Println("Waiting for response event: " + responseEventName)
 	// It's assumed runtime.EventsOn handles registration in a way that doesn't block or can be done in a separate goroutine if necessary.
