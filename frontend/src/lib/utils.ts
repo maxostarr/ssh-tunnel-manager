@@ -6,7 +6,7 @@ export const openRemote = async (id: string) => {
   await Connect(id).catch((err) => {
     console.error(err)
     addToast({
-      message: "Failed to connect to remote",
+      message: `Failed to connect to remote: ${err}`,
       type: "error",
       dismissible: true,
       timeout: 5000,
