@@ -5,12 +5,11 @@
   let reject
 
   let promptText = ""
-  let config: PromptData | ConfirmData = {} as any
+  let config: PromptData<any> | ConfirmData = {} as any
 
-  export const prompt = (inpConfig: PromptData | ConfirmData) => {
+  export const prompt = (inpConfig: PromptData<any> | ConfirmData) => {
     promptText = inpConfig.label
     config = inpConfig
-    console.log("🚀 ~ prompt ~ config:", config)
 
     resolve = inpConfig.resolve
     reject = inpConfig.reject
@@ -19,6 +18,7 @@
 
   const close = () => {
     ;(document.getElementById("prompt") as HTMLDialogElement).close()
+    reset()
   }
 
   const submit = async (event: Event) => {
@@ -44,6 +44,11 @@
     const inpConfig = value[0]
     prompt(inpConfig)
   })
+
+  const reset = () => {
+    promptText = ""
+    config = {} as any
+  }
 
   // onMount(() => {
   //   EventsOn("prompt", async (promptString) => {
