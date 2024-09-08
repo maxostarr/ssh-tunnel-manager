@@ -2,7 +2,6 @@
   import { fade } from "svelte/transition"
   import type { ssh_manager } from "../../../wailsjs/go/models"
   import { deleteRemote, updateRemote } from "../../lib/store"
-  import Prompt from "../Prompt.svelte"
   import { prompt } from "../../lib/promptStore"
 
   let clientX: number = 0
