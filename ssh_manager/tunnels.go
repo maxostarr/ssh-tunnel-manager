@@ -58,7 +58,7 @@ func handleConn(localConn net.Conn, client *ssh.Client, remoteHost string, remot
 		defer writer.Close()
 		_, err := io.Copy(writer, reader)
 		if err != nil {
-			log.Fatalf("io.Copy failed: %v", err)
+			fmt.Errorf("io.Copy failed: %v", err)
 		}
 	}
 
