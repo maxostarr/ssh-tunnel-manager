@@ -145,8 +145,11 @@ func (remote *SshManagerRemote) Connect() (bool, error) {
 	fmt.Println("Connected to " + connectionString)
 	remote.Client = client
 
+	fmt.Println("Initializing tunnels", remote.Tunnels)
+
 	for _, tunnel := range remote.Tunnels {
-		tunnel.Connect()
+		fmt.Println("Connecting tunnel " + strconv.Itoa(tunnel.LocalPort))
+		go tunnel.Connect()
 	}
 
 	return true, nil
