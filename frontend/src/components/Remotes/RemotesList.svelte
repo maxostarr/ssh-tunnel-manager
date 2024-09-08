@@ -49,6 +49,7 @@
         <thead>
           <tr>
             <th>Name</th>
+            <th>User</th>
             <th>Host</th>
           </tr>
         </thead><tbody>
@@ -66,6 +67,11 @@
               <td>
                 <h2>{remote.name}</h2>
               </td>
+
+              <td>
+                <p class="text-ellipsis overflow-hidden">{remote.username}</p>
+              </td>
+
               <td class="tooltip w-full text-left" data-tip={remote.host}>
                 <p class="text-ellipsis overflow-hidden">{remote.host}</p>
               </td>
