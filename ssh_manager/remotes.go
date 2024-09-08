@@ -93,19 +93,19 @@ func (manager *SshManager) promptPasswordChallenge() (string, error) {
 	// }
 	// return response.Response, nil
 
-	result, err := manager.PromptUser(utils.PromptOptions{
-		Inputs: []utils.PromptInput{
-			{
-				Label: "Password",
-				Key:   "password",
-				Type:  utils.PromptInputTypePassword,
-			},
+	result, err := manager.PromptUser(utils.NewPromptOptions("Password", "Confirm", "Cancel", []utils.PromptInput{
+		{
+			Label: "Password",
+			Key:   "password",
+			Type:  utils.PromptInputTypePassword,
 		},
-	})
+	}))
 
 	if err != nil {
 		return "", err
 	}
+
+	fmt.Println("Password response: " + result.Response["password"])
 
 	return result.Response["password"], nil
 }
