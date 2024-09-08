@@ -96,6 +96,7 @@ func InsertRemote(remoteData *SshManagerRemoteData) (string, error) {
 func UpdateRemote(remoteData *SshManagerRemoteData) error {
 	_, err := connection.Exec(`UPDATE remotes SET name = ?, host = ?, port = ?, username = ? WHERE id = ?;`, remoteData.Name, remoteData.Host, remoteData.Port, remoteData.Username, remoteData.ID)
 	if err != nil {
+		fmt.Println("Error updating remote:", err)
 		return err
 	}
 	return nil

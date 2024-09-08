@@ -48,6 +48,7 @@ func (a *App) AddRemote(name string, host string, port int, username string) (bo
 }
 
 func (a *App) UpdateRemote(id string, name string, host string, port int, username string) (bool, error) {
+	fmt.Println("Updating remote with ID", id)
 	return a.manager.UpdateRemote(id, name, host, port, username)
 }
 

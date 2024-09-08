@@ -55,6 +55,7 @@ export const deleteRemote = async (remoteId: string) => {
 }
 
 export const updateRemote = async (remote: RemoteData) => {
+  console.log('🚀 ~ updateRemote ~ remote:', remote)
   await UpdateRemote(
     remote.id,
     remote.name,

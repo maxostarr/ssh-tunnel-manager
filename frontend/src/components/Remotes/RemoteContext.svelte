@@ -3,6 +3,7 @@
   import type { ssh_manager } from "../../../wailsjs/go/models"
   import { deleteRemote, updateRemote } from "../../lib/store"
   import { prompt } from "../../lib/promptStore"
+  import { onDestroy } from "svelte"
 
   let clientX: number = 0
   let clientY: number = 0
@@ -12,18 +13,22 @@
     inpRemote: ssh_manager.SshManagerRemoteData,
     mouseEvent: MouseEvent,
   ) => void = (inpRemote, mouseEvent) => {
+    registerCloseListeners()
     remote = inpRemote
     clientX = mouseEvent.clientX
     clientY = mouseEvent.clientY
   }
 
   export const closeContextMenu: () => void = () => {
+    console.log("Close context menu")
+    deregCloseListeners()
     clientX = 0
     clientY = 0
     remote = null
   }
 
   const handleRenameRemote: () => Promise<void> = async () => {
+    deregCloseListeners()
     console.log("Rename remote")
     const { newName } = await prompt({
       type: "prompt",
@@ -42,9 +47,11 @@
       ...remote,
       name: newName,
     })
+    closeContextMenu()
   }
 
   const handleEditHost: () => Promise<void> = async () => {
+    deregCloseListeners()
     console.log("Edit host")
 
     const { newHost } = await prompt({
@@ -66,10 +73,12 @@
       ...remote,
       host: newHost,
     })
+    closeContextMenu()
   }
 
   const handleEditUser: () => Promise<void> = async () => {
-    console.log("Edit user")
+    deregCloseListeners()
+    console.log("Edit user", remote)
 
     const { newUser } = await prompt({
       type: "prompt",
@@ -86,25 +95,45 @@
         },
       ],
     })
+
+    console.log("New user", newUser, remote)
+
     updateRemote({
       ...remote,
       username: newUser,
     })
+    closeContextMenu()
   }
 
   const handleDeleteRemote: () => void = () => {
     deleteRemote(remote.id)
   }
 
-  // Close context menu on escape key
-  window.addEventListener("keydown", (event) => {
-    if (event.key === "Escape") {
+  const checkEsc = (ev: KeyboardEvent) => (any) => {
+    return (event) => {
+      if (event.key === "Escape") {
+        closeContextMenu()
+      }
+    }
+  }
+
+  const checkOutside = (event: MouseEvent) => {
+    if (!document.querySelector(".menu").contains(event.target as Node)) {
       closeContextMenu()
     }
-  })
+  }
 
-  // Close context menu on click outside
-  window.addEventListener("click", closeContextMenu)
+  const registerCloseListeners = () => {
+    window.addEventListener("click", checkOutside)
+    window.addEventListener("keydown", checkEsc)
+  }
+
+  registerCloseListeners()
+
+  const deregCloseListeners = () => {
+    window.removeEventListener("click", checkOutside)
+    window.removeEventListener("keydown", checkEsc)
+  }
 </script>
 
 <!-- <Prompt bind:prompt /> -->
