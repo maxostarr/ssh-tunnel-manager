@@ -84,7 +84,9 @@
   }
 
   .table tr.selected {
-    background-color: oklch(var(--p));
-    color: oklch(var(--pc));
+    /* background-color: oklch(var(--p));
+    color: oklch(var(--pc)); */
+
+    outline: 1px solid oklch(var(--p));
   }
 </style>
