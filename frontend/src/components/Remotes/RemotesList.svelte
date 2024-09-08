@@ -33,8 +33,8 @@
   <NewRemote bind:show={showNewRemote} />
   <RemoteContext bind:openContextMenu />
   <div class="card-body">
-    <h2 class="card-title">
-      Remotes
+    <h2 class="flex justify-between items-center">
+      <span>Remotes</span>
 
       <button
         class="btn btn-primary btn-circle btn-outline"
@@ -44,9 +44,14 @@
       </button>
     </h2>
     <div class="divider"></div>
-    <div class="overflow-x-auto">
-      <table class="table">
-        <tbody>
+    <div class="">
+      <table class="table w-full table-fixed">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Host</th>
+          </tr>
+        </thead><tbody>
           {#each $remotesStore as remote}
             <tr
               on:click={() => selectRemote(remote)}
@@ -61,8 +66,8 @@
               <td>
                 <h2>{remote.name}</h2>
               </td>
-              <td>
-                <p>{remote.host}</p>
+              <td class="tooltip w-full text-left" data-tip={remote.host}>
+                <p class="text-ellipsis overflow-hidden">{remote.host}</p>
               </td>
             </tr>
           {/each}
@@ -73,10 +78,6 @@
 </div>
 
 <style>
-  .card-title {
-    display: flex;
-    justify-content: space-between;
-  }
   .table tr:hover {
     background-color: oklch(var(--p));
     color: oklch(var(--pc));
