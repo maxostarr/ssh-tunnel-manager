@@ -128,8 +128,6 @@
     window.addEventListener("keydown", checkEsc)
   }
 
-  registerCloseListeners()
-
   const deregCloseListeners = () => {
     window.removeEventListener("click", checkOutside)
     window.removeEventListener("keydown", checkEsc)
