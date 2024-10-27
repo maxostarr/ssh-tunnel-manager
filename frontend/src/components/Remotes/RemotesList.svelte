@@ -67,8 +67,13 @@
             >
               <td>
                 <span
-                  class="badge badge-error"
+                  class="badge badge-neutral"
                   class:hidden={remote.status !== "disconnected"}
+                >
+                </span>
+                <span
+                  class="badge badge-error"
+                  class:hidden={remote.status !== "error"}
                 >
                 </span>
                 <span

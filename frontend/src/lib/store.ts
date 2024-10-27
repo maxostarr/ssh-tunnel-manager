@@ -1,4 +1,4 @@
-import { writable } from "svelte/store";
+import { get, writable } from "svelte/store";
 import {
   AddRemote,
   AddTunnel,
@@ -29,6 +29,12 @@ export const loadRemoteDetails = async (remoteId: string) => {
   const remoteDetails = await GetRemote(remoteId);
   remoteDetails.tunnels = remoteDetails.tunnels ?? [];
   selectedRemoteStore.set(remoteDetails);
+};
+
+export const refreshSelectedRemote = async () => {
+  const selectedRemote = get(selectedRemoteStore);
+  if (!selectedRemote.id) return;
+  await loadRemoteDetails(selectedRemote.id);
 };
 
 export const addRemote = async (remote: NewRemote) => {
@@ -67,4 +73,7 @@ export const updateRemote = async (remote: RemoteData) => {
   return loadRemotes();
 };
 
-EventsOn("remotes-updated", loadRemotes);
+EventsOn("remotes-updated", async () => {
+  await loadRemotes();
+  await refreshSelectedRemote();
+});

@@ -153,6 +153,9 @@ func (remote *SshManagerRemote) Connect(update chan struct{}) (bool, error) {
 	fmt.Println("Connecting to " + connectionString)
 	client, err := ssh.Dial("tcp", connectionString, config)
 	if err != nil {
+		remote.Status = "error"
+		update <- struct{}{}
+
 		return false, err
 	}
 	fmt.Println("Connected to " + connectionString)
@@ -173,9 +176,16 @@ func (remote *SshManagerRemote) Connect(update chan struct{}) (bool, error) {
 
 func (remote *SshManagerRemote) Disconnect() {
 	for _, tunnel := range remote.Tunnels {
+		fmt.Println("Disconnecting tunnel " + strconv.Itoa(tunnel.LocalPort))
 		tunnel.Disconnect()
+		fmt.Println("Disconnected tunnel " + strconv.Itoa(tunnel.LocalPort))
 	}
+
+	fmt.Println("Disconnecting remote " + remote.ID)
 	remote.Client.Close()
+	fmt.Println("Disconnected remote " + remote.ID)
+
+	remote.Status = "disconnected"
 }
 
 func (remote *SshManagerRemote) AddTunnel(localPort int, remoteHost string, remotePort int) (bool, error) {

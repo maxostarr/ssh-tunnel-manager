@@ -136,6 +136,7 @@ func (a *App) Disconnect(remoteName string) {
 		return
 	}
 	remote.Disconnect()
+	a.eventsManager.Emit("remotes-updated", nil)
 }
 
 // func (a *App) TestPrompt() {
