@@ -8,6 +8,14 @@ import (
 	"golang.org/x/crypto/ssh"
 )
 
+type Status string
+
+const (
+	Disconnected Status = "disconnected"
+	Connected    Status = "connected"
+	Error        Status = "error"
+)
+
 type SshManagerRemote struct {
 	SshManagerRemoteData
 	Auth    []ssh.AuthMethod    `json:"-"`
@@ -34,6 +42,7 @@ func (manager *SshManager) NewSshManagerRemoteFromData(data SshManagerRemoteData
 			Port:     data.Port,
 			Username: data.Username,
 			ID:       data.ID,
+			Status:   "disconnected",
 		},
 	}
 
@@ -151,6 +160,8 @@ func (remote *SshManagerRemote) Connect() (bool, error) {
 		fmt.Println("Connecting tunnel " + strconv.Itoa(tunnel.LocalPort))
 		go tunnel.Connect()
 	}
+
+	remote.Status = "connected"
 
 	return true, nil
 }

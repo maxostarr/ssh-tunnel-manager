@@ -18,6 +18,7 @@ type SshManagerRemoteData struct {
 	Host     string `json:"host"`
 	Port     int    `json:"port"`
 	Username string `json:"username"`
+	Status   Status `json:"status"`
 }
 
 type SshManagerTunnelData struct {
@@ -55,7 +56,8 @@ func CreateTables() {
 		name TEXT NOT NULL,
 		host TEXT NOT NULL,
 		port INTEGER NOT NULL,
-		username TEXT NOT NULL
+		username TEXT NOT NULL,
+		status TEXT NOT NULL DEFAULT 'disconnected'
 	);`)
 	if err != nil {
 		fmt.Println("Error creating remotes table:", err)

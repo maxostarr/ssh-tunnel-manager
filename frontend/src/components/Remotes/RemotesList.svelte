@@ -48,6 +48,7 @@
       <table class="table w-full table-fixed">
         <thead>
           <tr>
+            <th>Status</th>
             <th>Name</th>
             <th>User</th>
             <th>Host</th>
@@ -65,6 +66,17 @@
               class:selected={remote.id === $selectedRemoteStore.id}
             >
               <td>
+                <span
+                  class="badge badge-success"
+                  class:hidden={remote.status !== "connected"}
+                >
+                </span>
+                <span
+                  class="badge badge-error"
+                  class:hidden={remote.status === "connected"}
+                >
+                </span>
+              </td><td>
                 <h2>{remote.name}</h2>
               </td>
 

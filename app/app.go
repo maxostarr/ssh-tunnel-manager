@@ -11,8 +11,9 @@ import (
 
 // App struct
 type App struct {
-	ctx     context.Context
-	manager *ssh_manager.SshManager
+	ctx           context.Context
+	manager       *ssh_manager.SshManager
+	eventsManager utils.EventManager
 }
 
 // NewApp creates a new App application struct
@@ -34,9 +35,9 @@ func (a *App) Startup(ctx context.Context) {
 }
 
 func (a *App) WithEvents() {
-	eventsManager := utils.NewEventManager(a.ctx)
+	a.eventsManager = utils.NewEventManager(a.ctx)
 
-	a.manager.PromptUser = eventsManager.Prompt
+	a.manager.PromptUser = a.eventsManager.Prompt
 }
 
 func (a *App) GetRemotes() []*ssh_manager.SshManagerRemoteData {
@@ -90,7 +91,11 @@ func (a *App) Connect(id string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	return remote.Connect()
+	remote.Connect()
+
+	a.eventsManager.Emit("remotes-updated", nil)
+
+	return true, nil
 }
 
 func (a *App) Disconnect(remoteName string) {

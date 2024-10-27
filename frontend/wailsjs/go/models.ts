@@ -26,6 +26,7 @@ export namespace ssh_manager {
 	    host: string;
 	    port: number;
 	    username: string;
+	    status: string;
 	    tunnels: SshManagerTunnel[];
 	
 	    static createFrom(source: any = {}) {
@@ -39,6 +40,7 @@ export namespace ssh_manager {
 	        this.host = source["host"];
 	        this.port = source["port"];
 	        this.username = source["username"];
+	        this.status = source["status"];
 	        this.tunnels = this.convertValues(source["tunnels"], SshManagerTunnel);
 	    }
 	
@@ -66,6 +68,7 @@ export namespace ssh_manager {
 	    host: string;
 	    port: number;
 	    username: string;
+	    status: string;
 	
 	    static createFrom(source: any = {}) {
 	        return new SshManagerRemoteData(source);
@@ -78,6 +81,7 @@ export namespace ssh_manager {
 	        this.host = source["host"];
 	        this.port = source["port"];
 	        this.username = source["username"];
+	        this.status = source["status"];
 	    }
 	}
 
