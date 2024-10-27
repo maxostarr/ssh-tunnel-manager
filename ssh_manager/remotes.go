@@ -12,6 +12,7 @@ type Status string
 
 const (
 	Disconnected Status = "disconnected"
+	Connecting   Status = "connecting"
 	Connected    Status = "connected"
 	Error        Status = "error"
 )
@@ -139,7 +140,10 @@ func (remote *SshManagerRemote) Update() error {
 	return UpdateRemote(&remote.SshManagerRemoteData)
 }
 
-func (remote *SshManagerRemote) Connect() (bool, error) {
+func (remote *SshManagerRemote) Connect(update chan struct{}) (bool, error) {
+	remote.Status = "connecting"
+	update <- struct{}{}
+
 	config := &ssh.ClientConfig{
 		User:            remote.Username,
 		Auth:            remote.Auth,
@@ -162,6 +166,7 @@ func (remote *SshManagerRemote) Connect() (bool, error) {
 	}
 
 	remote.Status = "connected"
+	update <- struct{}{}
 
 	return true, nil
 }

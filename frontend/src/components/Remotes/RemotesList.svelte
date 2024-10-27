@@ -67,13 +67,18 @@
             >
               <td>
                 <span
-                  class="badge badge-success"
-                  class:hidden={remote.status !== "connected"}
+                  class="badge badge-error"
+                  class:hidden={remote.status !== "disconnected"}
                 >
                 </span>
                 <span
-                  class="badge badge-error"
-                  class:hidden={remote.status === "connected"}
+                  class="badge badge-warning"
+                  class:hidden={remote.status !== "connecting"}
+                >
+                </span>
+                <span
+                  class="badge badge-success"
+                  class:hidden={remote.status !== "connected"}
                 >
                 </span>
               </td><td>

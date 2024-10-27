@@ -85,16 +85,48 @@ func (a *App) RemoveTunnel(remoteName string, localPort int) (bool, error) {
 	return remote.RemoveTunnel(localPort)
 }
 
+// func (a *App) Connect(id string) (bool, error) {
+// 	fmt.Println("Initiating connection to remote with ID" + id)
+// 	remote, err := a.manager.GetRemote(id)
+// 	if err != nil {
+// 		return false, err
+// 	}
+
+// 	update := make(chan struct{})
+// 	go remote.Connect(update)
+
+// 	a.eventsManager.Emit("remotes-updated", nil)
+
+// 	return true, nil
+// }
+
 func (a *App) Connect(id string) (bool, error) {
 	fmt.Println("Initiating connection to remote with ID" + id)
 	remote, err := a.manager.GetRemote(id)
 	if err != nil {
 		return false, err
 	}
-	remote.Connect()
 
-	a.eventsManager.Emit("remotes-updated", nil)
+	update := make(chan struct{})
+	done := make(chan struct{})
 
+	go func() {
+		remote.Connect(update)
+		close(done)
+	}()
+
+	go func() {
+		for {
+			select {
+			case <-update:
+				a.eventsManager.Emit("remotes-updated", nil)
+			case <-done:
+				return
+			}
+		}
+	}()
+
+	<-done
 	return true, nil
 }
 
