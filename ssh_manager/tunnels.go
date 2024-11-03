@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"time"
 
 	"golang.org/x/crypto/ssh"
 )
@@ -94,29 +95,25 @@ func handleConn(localConn net.Conn, client *ssh.Client, remoteHost string, remot
 }
 
 func (tunnel *SshManagerTunnel) handleIncomingConnection(tcpListener *net.TCPListener) (bool, error) {
-	// tcpListener.SetDeadline(time.Now().Add(100 * time.Millisecond))
+	// Add connection deadline to prevent blocking forever
+	tcpListener.SetDeadline(time.Now().Add(1 * time.Second))
 
 	conn, err := tcpListener.Accept()
 	if err != nil {
-		log.Printf("handleIncomingConnection: Failed to accept connection: %v", err)
 		select {
 		case <-tunnel.stop:
-			log.Printf("handleIncomingConnection: Stop signal received")
 			return false, nil
 		default:
 			if netErr, ok := err.(net.Error); ok && netErr.Timeout() {
-				log.Printf("handleIncomingConnection: Timeout")
-
-				log.Printf("handleIncomingConnection: Continue loop")
-				return true, nil // Continue loop
+				return true, nil // Continue loop on timeout
 			}
-			if !strings.Contains(err.Error(), "use of closed network connection") {
-				return true, fmt.Errorf("handleIncomingConnection: Failed to accept connection: %v", err)
+			// Don't return error for closed listener during shutdown
+			if strings.Contains(err.Error(), "use of closed network connection") {
+				return false, nil
 			}
-			return false, nil
+			return true, fmt.Errorf("failed to accept connection: %v", err)
 		}
 	}
-	defer conn.Close()
 
 	select {
 	case <-tunnel.stop:
@@ -125,52 +122,47 @@ func (tunnel *SshManagerTunnel) handleIncomingConnection(tcpListener *net.TCPLis
 	default:
 		tunnel.wg.Add(1)
 		go func() {
-			defer tunnel.wg.Done()
-			log.Printf("handleIncomingConnection: Handling connection")
+			defer func() {
+				conn.Close()
+				tunnel.wg.Done()
+			}()
+
+			log.Printf("handling connection from %v", conn.RemoteAddr())
 			handleConn(conn, tunnel.Remote.Client, tunnel.RemoteHost, tunnel.RemotePort, tunnel.stop, &tunnel.wg)
-			log.Printf("handleIncomingConnection: Connection handled")
 		}()
 		return true, nil
 	}
 }
 
 func (tunnel *SshManagerTunnel) Connect() (bool, error) {
-	fmt.Println("Connect: Starting tunnel - " + tunnel.ID)
-	defer log.Output(2, "Connect: Connected tunnel - "+tunnel.ID)
+	log.Printf("starting tunnel %s", tunnel.ID)
 
-	listener, err := net.Listen("tcp", "localhost:"+strconv.Itoa(int(tunnel.LocalPort)))
+	listener, err := net.Listen("tcp", fmt.Sprintf("localhost:%d", tunnel.LocalPort))
 	if err != nil {
-		return true, fmt.Errorf("Connect: Failed to listen: %v", err)
+		return true, fmt.Errorf("failed to listen: %v", err)
 	}
-	defer listener.Close()
 
 	tcpListener, ok := listener.(*net.TCPListener)
 	if !ok {
-		return true, fmt.Errorf("Connect: Failed to cast to TCP listener")
+		listener.Close()
+		return true, fmt.Errorf("failed to cast to TCP listener")
 	}
 
-	// Add logging before select
-	fmt.Println("Connect: Entering main loop")
+	defer func() {
+		tcpListener.Close()
+		tunnel.wg.Wait()
+	}()
 
 	for {
 		select {
 		case <-tunnel.stop:
-			fmt.Println("Connect: Stop signal received") // Add this
-			fmt.Println("Connect: Stopping connection")
-			tcpListener.Close()
-			tunnel.wg.Wait()
-			fmt.Println("Connect: Clean shutdown complete") // Add this
 			return false, nil
 		default:
-			shouldContinue, err := tunnel.handleIncomingConnection(tcpListener)
-			if err != nil {
-				return true, err
-			}
-			if !shouldContinue {
-				return false, nil
+			cont, err := tunnel.handleIncomingConnection(tcpListener)
+			if !cont || err != nil {
+				return false, err
 			}
 		}
-
 	}
 }
 
