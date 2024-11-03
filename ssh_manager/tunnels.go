@@ -6,6 +6,7 @@ import (
 	"log"
 	"net"
 	"strconv"
+	"strings"
 	"sync"
 
 	"golang.org/x/crypto/ssh"
@@ -26,7 +27,7 @@ func NewSshManagerTunnel(localPort int, remoteHost string, remotePort int, remot
 			RemotePort: remotePort,
 			RemoteID:   remote.ID,
 		},
-		stop:   make(chan struct{}),
+		stop:   make(chan struct{}, 1),
 		wg:     sync.WaitGroup{},
 		Remote: remote,
 	}
@@ -38,7 +39,7 @@ func NewSshManagerTunnelFromData(data SshManagerTunnelData, remote *SshManagerRe
 	tunnel := &SshManagerTunnel{
 		SshManagerTunnelData: data,
 		Remote:               remote,
-		stop:                 make(chan struct{}),
+		stop:                 make(chan struct{}, 1),
 		wg:                   sync.WaitGroup{},
 	}
 	return tunnel
@@ -46,16 +47,15 @@ func NewSshManagerTunnelFromData(data SshManagerTunnelData, remote *SshManagerRe
 
 func handleConn(localConn net.Conn, client *ssh.Client, remoteHost string, remotePort int, stop chan struct{}, wg *sync.WaitGroup) {
 	defer localConn.Close()
-	log.Output(2, "Handling connection")
 
 	remoteConn, err := client.Dial("tcp", remoteHost+":"+strconv.Itoa(remotePort))
 	if err != nil {
 		select {
 		case <-stop:
-			fmt.Println("Stopping connection")
+			log.Printf("Connection stopped while dialing")
 			return
 		default:
-			fmt.Errorf("Failed to connect to remote host: %v", err)
+			log.Printf("Failed to connect to remote host: %v", err)
 		}
 		return
 	}
@@ -67,15 +67,17 @@ func handleConn(localConn net.Conn, client *ssh.Client, remoteHost string, remot
 		if err != nil {
 			select {
 			case <-done:
+				log.Printf("Copy stopped via done channel")
 				return
 			default:
-				fmt.Errorf("io.Copy failed: %v", err)
+				log.Printf("Copy failed: %v", err)
 			}
 		}
 	}
 
 	done := make(chan struct{})
 	wg.Add(2)
+
 	go func() {
 		defer wg.Done()
 		copyConn(localConn, remoteConn, done)
@@ -86,71 +88,96 @@ func handleConn(localConn net.Conn, client *ssh.Client, remoteHost string, remot
 		copyConn(remoteConn, localConn, done)
 	}()
 
-	log.Output(2, "Waiting for stop")
 	<-stop
-	fmt.Println("Stopping connection")
+	log.Printf("Stopping connection and cleanup")
 	close(done)
 }
 
+func (tunnel *SshManagerTunnel) handleIncomingConnection(tcpListener *net.TCPListener) (bool, error) {
+	// tcpListener.SetDeadline(time.Now().Add(100 * time.Millisecond))
+
+	conn, err := tcpListener.Accept()
+	if err != nil {
+		log.Printf("handleIncomingConnection: Failed to accept connection: %v", err)
+		select {
+		case <-tunnel.stop:
+			log.Printf("handleIncomingConnection: Stop signal received")
+			return false, nil
+		default:
+			if netErr, ok := err.(net.Error); ok && netErr.Timeout() {
+				log.Printf("handleIncomingConnection: Timeout")
+
+				log.Printf("handleIncomingConnection: Continue loop")
+				return true, nil // Continue loop
+			}
+			if !strings.Contains(err.Error(), "use of closed network connection") {
+				return true, fmt.Errorf("handleIncomingConnection: Failed to accept connection: %v", err)
+			}
+			return false, nil
+		}
+	}
+	defer conn.Close()
+
+	select {
+	case <-tunnel.stop:
+		conn.Close()
+		return false, nil
+	default:
+		tunnel.wg.Add(1)
+		go func() {
+			defer tunnel.wg.Done()
+			log.Printf("handleIncomingConnection: Handling connection")
+			handleConn(conn, tunnel.Remote.Client, tunnel.RemoteHost, tunnel.RemotePort, tunnel.stop, &tunnel.wg)
+			log.Printf("handleIncomingConnection: Connection handled")
+		}()
+		return true, nil
+	}
+}
+
 func (tunnel *SshManagerTunnel) Connect() (bool, error) {
-	fmt.Println("Connecting tunnel - " + tunnel.ID)
+	fmt.Println("Connect: Starting tunnel - " + tunnel.ID)
+	defer log.Output(2, "Connect: Connected tunnel - "+tunnel.ID)
 
 	listener, err := net.Listen("tcp", "localhost:"+strconv.Itoa(int(tunnel.LocalPort)))
 	if err != nil {
-		return true, fmt.Errorf("Failed to listen: %v", err)
+		return true, fmt.Errorf("Connect: Failed to listen: %v", err)
 	}
 	defer listener.Close()
-	fmt.Println("Listening on localhost:" + strconv.Itoa(int(tunnel.LocalPort)))
+
+	tcpListener, ok := listener.(*net.TCPListener)
+	if !ok {
+		return true, fmt.Errorf("Connect: Failed to cast to TCP listener")
+	}
+
+	// Add logging before select
+	fmt.Println("Connect: Entering main loop")
 
 	for {
-
-		log.Output(2, "Waiting for connection")
 		select {
 		case <-tunnel.stop:
-			fmt.Println("Stopping connection")
+			fmt.Println("Connect: Stop signal received") // Add this
+			fmt.Println("Connect: Stopping connection")
+			tcpListener.Close()
+			tunnel.wg.Wait()
+			fmt.Println("Connect: Clean shutdown complete") // Add this
 			return false, nil
 		default:
-		}
-
-		conn, err := listener.Accept()
-		log.Output(2, "Accepting connection")
-		if err != nil {
-			select {
-			case <-tunnel.stop:
-				log.Output(2, "Stopping connection")
+			shouldContinue, err := tunnel.handleIncomingConnection(tcpListener)
+			if err != nil {
+				return true, err
+			}
+			if !shouldContinue {
 				return false, nil
-			default:
-				fmt.Errorf("Failed to accept connection: %v", err)
 			}
 		}
 
-		go handleConn(conn, tunnel.Remote.Client, tunnel.RemoteHost, tunnel.RemotePort, tunnel.stop, &tunnel.wg)
-
 	}
-
-	// for {
-	// 	select {
-	// 	case <-tunnel.stop:
-	// 		log.Output(2, "Stopping connection")
-	// 		return false, nil
-	// 	default:
-	// 		if tcpListener, ok := listener.(*net.TCPListener); ok {
-	// 			tcpListener.SetDeadline(time.Now().Add(1 * time.Second)) // Set a deadline to periodically check the stop channel
-	// 		}
-	// 		conn, err := listener.Accept()
-	// 		if err != nil {
-	// 			if opErr, ok := err.(*net.OpError); ok && opErr.Timeout() {
-	// 				continue // Timeout error, continue to check the stop channel
-	// 			}
-	// 			return true, fmt.Errorf("Failed to accept connection: %v", err)
-	// 		}
-
-	// 		go handleConn(conn, tunnel.Remote.Client, tunnel.RemoteHost, tunnel.RemotePort, tunnel.stop, &tunnel.wg)
-	// 	}
-	// }
 }
 
 func (tunnel *SshManagerTunnel) Disconnect() {
+	fmt.Printf("Disconnect: Starting shutdown - %f, %p\n ", tunnel.LocalPort, tunnel.stop)
 	close(tunnel.stop)
+	fmt.Println("Disconnect: Stop channel closed")
 	tunnel.wg.Wait()
+	fmt.Println("Disconnect: All goroutines finished")
 }

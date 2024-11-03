@@ -46,7 +46,9 @@ func (manager *SshManager) AddRemote(name string, host string, port int, usernam
 func (manager *SshManager) GetRemote(id string) (*SshManagerRemote, error) {
 	for _, remote := range manager.Remotes {
 		if remote.ID == id {
-			remote.Initialize()
+			if !remote.initialized {
+				remote.Initialize()
+			}
 			return remote, nil
 		}
 	}

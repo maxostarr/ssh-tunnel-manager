@@ -19,9 +19,10 @@ const (
 
 type SshManagerRemote struct {
 	SshManagerRemoteData
-	Auth    []ssh.AuthMethod    `json:"-"`
-	Client  *ssh.Client         `json:"-"`
-	Tunnels []*SshManagerTunnel `json:"tunnels"`
+	Auth        []ssh.AuthMethod    `json:"-"`
+	Client      *ssh.Client         `json:"-"`
+	Tunnels     []*SshManagerTunnel `json:"tunnels"`
+	initialized bool                `json:"-"`
 }
 
 func (manager *SshManager) NewSshManagerRemote(name string, host string, port int, username string) *SshManagerRemote {
@@ -45,6 +46,7 @@ func (manager *SshManager) NewSshManagerRemoteFromData(data SshManagerRemoteData
 			ID:       data.ID,
 			Status:   "disconnected",
 		},
+		initialized: false,
 	}
 
 	remote.Auth = []ssh.AuthMethod{
@@ -130,6 +132,7 @@ func (remote *SshManagerRemote) Initialize() {
 		tunnel := NewSshManagerTunnelFromData(*tunnelData, remote)
 		remote.Tunnels = append(remote.Tunnels, tunnel)
 	}
+	remote.initialized = true
 }
 
 func (remote *SshManagerRemote) Save() (string, error) {
